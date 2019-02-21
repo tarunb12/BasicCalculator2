@@ -1,0 +1,10 @@
+.DS_Store
+
+*.interp
+*.tokens
+*.class
+
+/bin
+/.vscode
+src/calculator/antlr4/.antlr/*
+/src/calculator/antlr4/*.java
