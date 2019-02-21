@@ -1,5 +1,8 @@
 package calculator;
 
+//
+// Expressions
+//
 
 class UnaryMinusExpression implements Expression {
     private final Expression value;
@@ -12,13 +15,13 @@ class UnaryMinusExpression implements Expression {
 }
 
 class VariableReference implements Expression {
-    private final String varName;
+    private final String variableName;
 
-    public VariableReference(String varName) {
-        this.varName = varName;
+    public VariableReference(String variableName) {
+        this.variableName = variableName;
     }
 
-    public final String getVarName() { return this.varName; }
+    public final String getVariableName() { return this.variableName; }
 }
 
 class FloatLiteral implements Expression {

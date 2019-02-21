@@ -1,5 +1,8 @@
 package calculator;
 
+//
+// Binary Expressions
+//
 
 interface BinaryExpression extends Expression {
     Expression getLeft();

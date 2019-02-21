@@ -2,7 +2,7 @@ grammar Calculator;
 
 @header { package calculator.antlr4; } 
 
-prog: NL*? stat ( NL*? stat )* NL*? ;
+prog: ( NL*? stat )* NL*? ;
 
 stat
     : printStatement

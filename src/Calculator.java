@@ -1,13 +1,15 @@
-
 import calculator.antlr4.CalculatorLexer;
 import calculator.antlr4.CalculatorParser;
-import calculator.CalculatorEvalVisitor;
+import calculator.CalculatorEvaluationVisitor;
+
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
 import org.antlr.v4.runtime.CharStreams.*;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+
 import java.lang.Exception;
 
 public class Calculator {
@@ -27,7 +29,7 @@ public class Calculator {
         CalculatorParser parser = new CalculatorParser(tokens);
         ParseTree tree = parser.prog();
         // parse tree visitor
-        CalculatorEvalVisitor eval = new CalculatorEvalVisitor();
+        CalculatorEvaluationVisitor eval = new CalculatorEvaluationVisitor();
         eval.visit(tree);
     }
 }
