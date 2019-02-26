@@ -1,8 +1,7 @@
-# bc Calculator, pt.2 #
-
-```console
+# COP4020 Basic Calculator Antlr4 Implementaion #
+~~~~
 $ cd src
-$ antlr4 -visitor -no-listener calculator/antlr4/Calculator.g4
-$ javac Calculator.java calculator/Calculator*.java calculator/antlr4/Calculator*.java
-$ java Calculator <filename>.bc
-```
+$ antlr4 -no-listener -visitor calculator/antlr/Calculator.g4
+$ javac Calculator*.java calculator/**/*.java
+$ java Calculator test1.bc
+~~~~

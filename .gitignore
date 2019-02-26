@@ -6,5 +6,6 @@
 
 /bin
 /.vscode
-src/calculator/antlr4/.antlr/*
-/src/calculator/antlr4/*.java
+
+/src/calculator/antlr/.antlr/
+/src/calculator/antlr/*.java
