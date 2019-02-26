@@ -21,26 +21,41 @@ public class CalculatorEvalVisitor extends CalculatorBaseVisitor<Node> {
 
     @Override
     public Node visitMultiply(CalculatorParser.MultiplyContext ctx) {
-        return new MultiplyExpression(visit(ctx.expr(0)), visit(ctx.expr(1)));
+        Node left = visit(ctx.expr(0));
+        Node right = visit(ctx.expr(1));
+        return new MultiplyExpression(left, right);
     }
 
     @Override
     public Node visitDivide(CalculatorParser.DivideContext ctx) {
-        return new DivideExpression(visit(ctx.expr(0)), visit(ctx.expr(1)));
+        Node left = visit(ctx.expr(0));
+        Node right = visit(ctx.expr(1));
+        return new DivideExpression(left, right);
     }
 
     @Override 
     public Node visitAdd(CalculatorParser.AddContext ctx) {
-        return new AddExpression(visit(ctx.expr(0)), visit(ctx.expr(1)));
+        Node left = visit(ctx.expr(0));
+        Node right = visit(ctx.expr(1));
+        return new AddExpression(left, right);
     }
 
     @Override
     public Node visitSubtract(SubtractContext ctx) {
-        return new SubtractExpression(visit(ctx.expr(0)), visit(ctx.expr(1)));
+        Node left = visit(ctx.expr(0));
+        Node right = visit(ctx.expr(1));
+        return new SubtractExpression(left, right);
     }
 
     @Override
     public Node visitNumber(CalculatorParser.NumberContext ctx) {
-        return new Number(Double.parseDouble(ctx.NUM().getText()));
+        double value = Double.parseDouble(ctx.NUM().getText());
+        return new Number(value);
+    }
+
+    @Override
+    public Node visitParenthesis(CalculatorParser.ParenthesisContext ctx) {
+        Node expr = visit(ctx.expr());
+        return expr;
     }
 }

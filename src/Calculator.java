@@ -27,13 +27,17 @@ public class Calculator {
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         // create a parser that feeds off the tokens buffer
         CalculatorParser parser = new CalculatorParser(tokens);
-        ParseTree tree = parser.stat(); // begin parsing at prog rule
+        // Create native parse tree
+        ParseTree tree = parser.start();
 
-        CalculatorEvalVisitor eval = new CalculatorEvalVisitor();
-        Node node = eval.visit(tree);
-        if (node == null) System.out.println("nully");
-        CalculatorEvalAST ast = new CalculatorEvalAST();
-        ast.Visit(node);
+        // create visitor class to transform parse tree to AST
+        CalculatorEvalVisitor toAST = new CalculatorEvalVisitor();
+        // transform parse tree into AST
+        Node ast = toAST.visit(tree);
+        // create AST evaluator class
+        CalculatorEvalAST eval = new CalculatorEvalAST();
+        // visit and evaluate AST
+        eval.visit(ast);
 
         // System.out.println("Parse Tree:\n" + tree.toStringTree(parser));
         // System.out.println("File Text:\n" + tree.getText());

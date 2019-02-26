@@ -1,8 +1,8 @@
 package calculator.ast;
 
 public class BinaryExpression extends Node {
-    private Node left = new Number(0.0);
-    private Node right = new Number(0.0);
+    private Node left;
+    private Node right;
 
     public BinaryExpression(Node left, Node right) {
         this.left = left;
@@ -13,14 +13,8 @@ public class BinaryExpression extends Node {
     public final Node getRight() { return this.right; }
 }
 
-class AddExpression extends BinaryExpression {
-    public AddExpression(Node left, Node right) {
-        super(left, right);
-    }
-}
-
-class SubtractExpression extends BinaryExpression {
-    public SubtractExpression(Node left, Node right) {
+class PowerExpression extends BinaryExpression {
+    public PowerExpression(Node left, Node right) {
         super(left, right);
     }
 }
@@ -36,3 +30,15 @@ class DivideExpression extends BinaryExpression {
         super(left, right);
     }
 }   
+
+class AddExpression extends BinaryExpression {
+    public AddExpression(Node left, Node right) {
+        super(left, right);
+    }
+}
+
+class SubtractExpression extends BinaryExpression {
+    public SubtractExpression(Node left, Node right) {
+        super(left, right);
+    }
+}

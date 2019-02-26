@@ -2,9 +2,10 @@ grammar Calculator;
 
 @header { package calculator.antlr; }
 
-prog: stat* EOF;
+prog: start* EOF ;
 
-stat: expr      # PrintExpr
+start
+    : expr      # PrintExpr
     | varDef    # Assign
     | comment   # Comm
     | NL        # NewLine
@@ -28,7 +29,8 @@ function: expFunc
         ;
 
 expr
-    : expr POW expr             # Power
+    : SUBT expr                 # UnaryMinus
+    | expr POW expr             # Power
     | function                  # Func
     | expr AND expr             # And
     | expr OR expr              # Or
@@ -42,8 +44,8 @@ expr
     | LPAR expr RPAR            # Parenthesis
     ;
 
-NUM     : '-'?([0-9]+)|([0-9]*'.'[0-9]+) ;  // -?((INT) | (FLOAT))
-VAR     : [_a-zA-Z]+[_a-zA-Z0-9]* ;     // (_alphabet)+(_alphanumeric)*
+NUM : '-'?([0-9]+)|([0-9]*'.'[0-9]+) ;  // -?((INT) | (FLOAT))
+VAR : [_a-zA-Z]+[_a-zA-Z0-9]* ;     // (_alphabet)+(_alphanumeric)*
 
 POW : '^' ;
 MULT: '*' ;
