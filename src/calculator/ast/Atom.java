@@ -1,33 +1,29 @@
 package calculator.ast;
 
-public class Atom extends Expression { }
+public class Atom<T> extends Expression {
+    private final T value;
 
-class Variable extends Atom {
-    private final String variableName;
-
-    public Variable(String variableName) {
-        this.variableName = variableName;
-    }
-
-    public final String getVariableName() { return this.variableName; }
-}
-
-class Number extends Atom {
-    private final double value;
-
-    public Number(double value) {
+    public Atom(T value) {
         this.value = value;
     }
 
-    public final double getValue() { return this.value; }
+    public final T getValue() { return this.value; }
 }
 
-class Parenthesis extends Atom {
-    private final Node expression;
-
-    public Parenthesis(Node expression) {
-        this.expression = expression;
+class Variable extends Atom<String> {
+    public Variable(String variableName) {
+        super(variableName);
     }
+}
 
-    public final Node getExpression() { return this.expression; }
+class Number extends Atom<Double> {
+    public Number(double value) {
+        super(value);
+    }
+}
+
+class Parenthesis extends Atom<Node> {
+    public Parenthesis(Node expression) {
+        super(expression);
+    }
 }

@@ -32,7 +32,7 @@ public class Calculator {
 
         // create visitor class to transform parse tree to AST
         CalculatorEvalVisitor toAST = new CalculatorEvalVisitor();
-        // transform parse tree into AST
+        // transform parse tree into custom AST
         Node ast = toAST.visit(tree);
         // create AST evaluator class
         CalculatorEvalAST eval = new CalculatorEvalAST();
