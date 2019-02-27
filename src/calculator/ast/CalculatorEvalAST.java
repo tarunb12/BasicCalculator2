@@ -170,4 +170,9 @@ public class CalculatorEvalAST extends ASTVisitor<Double> {
         System.out.println("");
         return 0.0;
     }
+
+    @Override
+    public Double visit(ErrorNode node) {
+        return 0.0;
+    }
 }

@@ -24,6 +24,7 @@ public abstract class ASTVisitor<T> {
     public abstract T visit(Text node);
     public abstract T visit(Parenthesis node);
     public abstract T visit(StatementNodeQueue node);
+    public abstract T visit(ErrorNode node);
     // Cast all nodes of type Node, too general of a class to do anything with
     public T visit(Node node) {
         if (node instanceof StartNodeQueue) return visit((StartNodeQueue) node);
@@ -49,6 +50,6 @@ public abstract class ASTVisitor<T> {
         else if (node instanceof Text) return visit((Text) node);
         else if (node instanceof Parenthesis) return visit((Parenthesis) node);
         else if (node instanceof StatementNodeQueue) return visit((StatementNodeQueue) node);
-        else return visit((Number) node); // Create Error/NullAction Node for this (null)
+        else return visit((ErrorNode) node); // Create Error/NullAction Node for this (null)
     }
 }

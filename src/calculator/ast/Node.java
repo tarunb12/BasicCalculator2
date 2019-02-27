@@ -2,6 +2,8 @@ package calculator.ast;
 
 public class Node { };
 
+class ErrorNode extends Node { };
+
 class Expression extends Node { };
 
 class NewLine extends Node { };
