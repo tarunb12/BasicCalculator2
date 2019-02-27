@@ -16,3 +16,4 @@ s(pi_2)
 c(pi_2)
 s(pi_2)/c(pi_2)
 !2.0
+print 2+2, 4+4, 6+6, "one", "two", "three"

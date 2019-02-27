@@ -13,8 +13,8 @@ public class Declaration extends Node {
     public final Node getDeclarationValue() { return this.declarationValue; }
 }
 
-class VariableDeclaration extends Declaration {
-    public VariableDeclaration(String variableName, Node value) {
+class VariableDefinition extends Declaration {
+    public VariableDefinition(String variableName, Node value) {
         super(variableName, value);
     }
 }

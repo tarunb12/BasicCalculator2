@@ -22,8 +22,22 @@ class Number extends Atom<Double> {
     }
 }
 
+class Read extends Atom<Double> {
+    public Read(Double value) {
+        super(value);
+    }
+
+    // public final void setValue(Double value) { this.value = value; }
+}
+
 class Parenthesis extends Atom<Node> {
     public Parenthesis(Node expression) {
         super(expression);
+    }
+}
+
+class Text extends Atom<String> {
+    public Text(String text) {
+        super(text);
     }
 }

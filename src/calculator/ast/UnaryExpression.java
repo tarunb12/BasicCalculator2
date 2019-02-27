@@ -15,15 +15,3 @@ class UnaryMinusExpression extends UnaryExpression {
         super(value);
     }
 }
-
-class SinFunction extends UnaryExpression {
-    public SinFunction(Node value) {
-        super(value);
-    }
-}
-
-class CosFunction extends UnaryExpression {
-    public CosFunction(Node value) {
-        super(value);
-    }
-}
