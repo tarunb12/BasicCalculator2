@@ -28,7 +28,9 @@ public class Calculator {
         // create a parser that feeds off the tokens buffer
         CalculatorParser parser = new CalculatorParser(tokens);
         // Create native parse tree
-        ParseTree tree = parser.start();
+        ParseTree tree = parser.prog();
+
+        System.out.println("Parse Tree:\n" + tree.toStringTree(parser));
 
         // create visitor class to transform parse tree to AST
         CalculatorEvalVisitor toAST = new CalculatorEvalVisitor();
@@ -38,8 +40,6 @@ public class Calculator {
         CalculatorEvalAST eval = new CalculatorEvalAST();
         // visit and evaluate AST
         eval.visit(ast);
-
-        // System.out.println("Parse Tree:\n" + tree.toStringTree(parser));
         // System.out.println("File Text:\n" + tree.getText());
     }
 }

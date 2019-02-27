@@ -5,36 +5,30 @@ grammar Calculator;
 prog: start* EOF ;
 
 start
-    : expr      # PrintExpr
-    | varDef    # Assign
-    | comment   # Comm
-    | NL        # NewLine
+    : expr                      # PrintExpr
+    | varDef                    # Assign
+    | COMMENT                   # Comm
+    | NL                        # NewLine
     ;
 
-varDef  : VAR EQ expr ;
+varDef  : VAR EQ expr           # VarDeclaration ;
 
-comment : '/*' (.)*? '*/' ;
+COMMENT : LCOM (.)*? RCOM -> channel(HIDDEN) ;
 
-sinFunc : 's' LPAR expr RPAR ;
-cosFunc : 'c' LPAR expr RPAR ;
-logFunc : 'l' LPAR expr RPAR ;
-expFunc : 'e' LPAR expr RPAR ;
-sqrtFunc: 'sqrt' LPAR expr RPAR ;
-
-function: expFunc
-        | logFunc
-        | sqrtFunc
-        | sinFunc
-        | cosFunc
+function: exp LPAR expr RPAR    # Exponential
+        | log LPAR expr RPAR    # Logarithm
+        | sqrt LPAR expr RPAR   # SquareRoot
+        | sin LPAR expr RPAR    # Sine
+        | cos LPAR expr RPAR    # Cosine
         ;
 
 expr
     : SUBT expr                 # UnaryMinus
     | expr POW expr             # Power
     | function                  # Func
+    | NOT expr                  # Not
     | expr AND expr             # And
     | expr OR expr              # Or
-    | NOT expr                  # Not
     | expr MULT expr            # Multiply
     | expr DIV expr             # Divide
     | expr ADD expr             # Add
@@ -59,6 +53,12 @@ EQ  : '=' ;
 NOT : '!' ;
 AND : '&&' ;
 OR  : '||' ;
+
+exp : 'e' ;
+log : 'l' ;
+sqrt: 'sqrt' ;
+sin : 's' ;
+cos : 'c' ;
 
 LCOM: '/*' ;
 RCOM: '*/' ;

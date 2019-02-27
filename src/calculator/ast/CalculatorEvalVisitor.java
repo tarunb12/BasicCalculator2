@@ -2,23 +2,39 @@ package calculator.ast;
 
 import calculator.antlr.CalculatorBaseVisitor;
 import calculator.antlr.CalculatorParser;
+import calculator.antlr.CalculatorParser.NewLineContext;
 import calculator.antlr.CalculatorParser.SubtractContext;
 import calculator.ast.ASTVisitor;
 import calculator.ast.Node;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
 
 public class CalculatorEvalVisitor extends CalculatorBaseVisitor<Node> {
-    // "memory" for the calculator, variable/value pairs go here
-    Map<String, Double> varDefs = new HashMap<String, Double>();
 
-    // @Override
-    // public Node visitPrintExpr(CalculatorParser.PrintExprContext ctx) {
-    //     ctx.expr();
-    //     return new Node();
-    // }
+    @Override
+    public Node visitProg(CalculatorParser.ProgContext ctx) {
+        List<CalculatorParser.StartContext> ctxs = ctx.start();
+        NodeQueue nodeQueue = new NodeQueue();
+        nodeQueue.init();
+        int i = 0;
+        for (CalculatorParser.StartContext context : ctxs) {
+            nodeQueue.push(visit(context));
+        }
+        return nodeQueue;
+    }
 
+    @Override
+    public Node visitPrintExpr(CalculatorParser.PrintExprContext ctx) {
+        return new PrintExpr(visit(ctx.expr()));
+    }
+
+    @Override
+    public Node visitNewLine(CalculatorParser.NewLineContext ctx) {
+        return new NewLine();
+    }
+    
     @Override
     public Node visitMultiply(CalculatorParser.MultiplyContext ctx) {
         Node left = visit(ctx.expr(0));

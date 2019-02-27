@@ -3,6 +3,27 @@ package calculator.ast;
 import calculator.ast.ASTVisitor;
 
 public class CalculatorEvalAST extends ASTVisitor<Double> {
+
+    @Override
+    public Double visit(NodeQueue node) {
+        while (!node.isEmpty()) {
+            visit(node.remove());
+        }
+        return 0.0;
+    }
+
+    @Override
+    public Double visit(PrintExpr node) {
+        Node printNode = node.getValue();
+        System.out.println(visit(printNode));
+        return 0.0;
+    }
+
+    @Override
+    public Double visit(NewLine node) {
+        return 0.0;
+    }
+
     @Override
     public Double visit(UnaryMinusExpression node) {
         Node value = node.getValue();
@@ -57,7 +78,7 @@ public class CalculatorEvalAST extends ASTVisitor<Double> {
 
     @Override
     public Double visit(Parenthesis node) {
-        Node expression = node.getExpression();
+        Node expression = node.getValue();
         return visit(expression);
     }
 
