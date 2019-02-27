@@ -1,4 +1,4 @@
-# COP4020 Basic Calculator Antlr4 Implementaion #
+# COP4020 Basic Calculator Antlr4 Implementaion, Part 2 #
 ~~~~
 $ cd src
 $ antlr4 -no-listener -visitor calculator/antlr/Calculator.g4
