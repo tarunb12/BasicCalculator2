@@ -1,43 +1,18 @@
 package calculator.ast;
 
-public class BooleanExpression extends Expression { };
-
-class UnaryBooleanExpression extends BooleanExpression {
-    private final Node value;
-
-    public UnaryBooleanExpression(Node value) {
-        this.value = value;
-    }
-
-    public final Node getValue() { return this.value; }
-}
-
-class BinaryBooleanExpression extends BooleanExpression {
-    private final Node left;
-    private final Node right;
-
-    public BinaryBooleanExpression(Node left, Node right) {
-        this.left = left;
-        this.right = right;
-    }
-
-    public final Node getLeft() { return this.left; }
-    public final Node getRight() { return this.right; }
-}
-
-class NotExpression extends UnaryBooleanExpression {
+class NotExpression extends UnaryExpression {
     public NotExpression(Node value) {
         super(value);
     }
 }
 
-class AndExpression extends BinaryBooleanExpression {
+class AndExpression extends BinaryExpression {
     public AndExpression(Node left, Node right) {
         super(left, right);
     }
 }
 
-class OrExpression extends BinaryBooleanExpression {
+class OrExpression extends BinaryExpression {
     public OrExpression(Node left, Node right) {
         super(left, right);
     }

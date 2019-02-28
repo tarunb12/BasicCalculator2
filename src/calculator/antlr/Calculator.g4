@@ -35,23 +35,36 @@ function
 
 expr
     : SUBT expr                         # UnaryMinus
-    | expr POW expr                     # Power
     | function                          # Func
+    | expr POW expr                     # Power
     | NOT expr                          # Not
     | expr AND expr                     # And
     | expr OR expr                      # Or
     | expr MULT expr                    # Multiply
     | expr DIV expr                     # Divide
-    | expr ADD expr                     # Add
     | expr SUBT expr                    # Subtract
+    | expr ADD expr                     # Add
     | NUM                               # Number
     | VAR                               # Variable
     | rd LPAR RPAR                      # Read
     | LPAR expr RPAR                    # Parenthesis
+    | expr GT expr                      # GreaterThan
+    | expr GTE expr                     # GreaterThanOrEqualTo
+    | expr LT expr                      # LessThan
+    | expr LTE expr                     # LessThanOrEqualTo
+    | expr LEQ expr                     # LogicalEqual
+    | expr LNEQ expr                    # LogicalNotEqual
     ;
 
-NUM : '-'?([0-9]+)|([0-9]*'.'[0-9]+) ;  // -?((INT) | (FLOAT))
-VAR : [_a-zA-Z]+[_a-zA-Z0-9]* ;     // (_alphabet)+(_alphanumeric)*
+NUM
+    : INT
+    | DOUBLE
+    ;
+
+INT     : [0-9]+ ;
+DOUBLE  : [0-9]*'.'[0-9]+;
+
+VAR     : [_a-zA-Z]+[_a-zA-Z0-9]* ;
 
 POW : '^' ;
 MULT: '*' ;
@@ -65,6 +78,12 @@ EQ  : '=' ;
 NOT : '!' ;
 AND : '&&' ;
 OR  : '||' ;
+LT  : '<' ;
+LTE : '<=' ;
+GT  : '>' ;
+GTE : '>=' ;
+LEQ : '==' ;
+LNEQ: '!=' ;
 
 exp : 'e' ;
 log : 'l' ;
@@ -75,7 +94,7 @@ rd  : 'read' ;
 
 print: 'print' ;
 QUOTE: '"' ;
-txt  : (.)*? ;
+txt  : ~(NL)*? ;
 
 LCOM: '/*' ;
 RCOM: '*/' ;

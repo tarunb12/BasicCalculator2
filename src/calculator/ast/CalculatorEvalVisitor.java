@@ -41,6 +41,19 @@ public class CalculatorEvalVisitor extends CalculatorBaseVisitor<Node> {
     }
 
     @Override
+    public Node visitUnaryMinus(UnaryMinusContext ctx) {
+        Node value = visit(ctx.expr());
+        return new UnaryMinusExpression(value);
+    }
+
+    @Override
+    public Node visitPower(PowerContext ctx) {
+        Node left = visit(ctx.expr(0));
+        Node right = visit(ctx.expr(1));
+        return new PowerExpression(left, right);
+    }
+
+    @Override
     public Node visitExponential(ExponentialContext ctx) {
         Node value = visit(ctx.expr());
         return new ExponentialFunction(value);
@@ -68,6 +81,26 @@ public class CalculatorEvalVisitor extends CalculatorBaseVisitor<Node> {
     public Node visitCosine(CosineContext ctx) {
         Node value = visit(ctx.expr());
         return new CosineFunction(value);
+    }
+
+    @Override
+    public Node visitNot(NotContext ctx) {
+        Node value = visit(ctx.expr());
+        return new NotExpression(value);
+    }
+
+    @Override
+    public Node visitAnd(AndContext ctx) {
+        Node left = visit(ctx.expr(0));
+        Node right = visit(ctx.expr(1));
+        return new AndExpression(left, right);
+    }
+
+    @Override
+    public Node visitOr(OrContext ctx) {
+        Node left = visit(ctx.expr(0));
+        Node right = visit(ctx.expr(1));
+        return new OrExpression(left, right);
     }
     
     @Override

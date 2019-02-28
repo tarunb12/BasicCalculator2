@@ -21,6 +21,7 @@ public abstract class ASTVisitor<T> {
     public abstract T visit(SubtractExpression node);
     public abstract T visit(Number node);
     public abstract T visit(Variable node);
+    public abstract T visit(Read node);
     public abstract T visit(Text node);
     public abstract T visit(Parenthesis node);
     public abstract T visit(StatementNodeQueue node);
@@ -47,9 +48,10 @@ public abstract class ASTVisitor<T> {
         else if (node instanceof SubtractExpression) return visit((SubtractExpression) node);
         else if (node instanceof Number) return visit((Number) node);
         else if (node instanceof Variable) return visit((Variable) node);
+        else if (node instanceof Read) return visit((Read) node);
         else if (node instanceof Text) return visit((Text) node);
         else if (node instanceof Parenthesis) return visit((Parenthesis) node);
         else if (node instanceof StatementNodeQueue) return visit((StatementNodeQueue) node);
-        else return visit((ErrorNode) node); // Create Error/NullAction Node for this (null)
+        else return visit((ErrorNode) node);
     }
 }

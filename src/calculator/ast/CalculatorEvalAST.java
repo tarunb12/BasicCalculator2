@@ -3,17 +3,30 @@ package calculator.ast;
 import calculator.ast.ASTVisitor;
 
 import java.util.HashMap;
+import java.util.Queue;
+
 import java.util.Map;
 
 public class CalculatorEvalAST extends ASTVisitor<Double> {
 
-    Map<String, Double> varDefs = new HashMap<String, Double>();
+    private static Map<String, Double> globalVarDefs = new HashMap<String, Double>();
+    private static Queue<Node> state;
+
+    private static boolean readExpression = false;
+    private static Double currentReadValue = 0.0;
 
     @Override
     public Double visit(StartNodeQueue node) {
         while (!node.isEmpty()) {
             Node first = node.remove();
-            visit(first);
+            state = node.getQueue();
+            Double value = visit(first);
+            if (readExpression) {
+                node.remove();
+                currentReadValue = 0.0;
+                readExpression = false;
+                if (first instanceof PrintExpr) System.out.println(value);
+            }
         }
         return 0.0;
     }
@@ -21,8 +34,9 @@ public class CalculatorEvalAST extends ASTVisitor<Double> {
     @Override
     public Double visit(PrintExpr node) {
         Node printNode = node.getValue();
-        System.out.println(visit(printNode));
-        return 0.0;
+        Double value = visit(printNode);
+        if (!readExpression) System.out.println(value);
+        return value;
     }
 
     @Override
@@ -34,7 +48,7 @@ public class CalculatorEvalAST extends ASTVisitor<Double> {
     public Double visit(VariableDefinition node) {
         String variableName = node.getDeclarationName();
         Node value = node.getDeclarationValue();
-        varDefs.put(variableName, visit(value));
+        globalVarDefs.put(variableName, visit(value));
         return 0.0;
     }
 
@@ -84,7 +98,7 @@ public class CalculatorEvalAST extends ASTVisitor<Double> {
     @Override
     public Double visit(NotExpression node) {
         Node value = node.getValue();
-        return visit(value) != 0.0 ? 1.0 : 0.0;
+        return visit(value) == 0.0 ? 1.0 : 0.0;
     }
 
     @Override
@@ -137,8 +151,16 @@ public class CalculatorEvalAST extends ASTVisitor<Double> {
     @Override
     public Double visit(Variable node) {
         String variableName = node.getValue();
-        if (varDefs.containsKey(variableName)) return varDefs.get(variableName);
+        if (globalVarDefs.containsKey(variableName)) return globalVarDefs.get(variableName);
         return 0.0;
+    }
+
+    @Override
+    public Double visit(Read node) {
+        readExpression = true;
+        if (state.isEmpty()) return 0.0;
+        if (currentReadValue == 0.0) currentReadValue = visit(state.peek());
+        return currentReadValue;
     }
 
     @Override
@@ -173,6 +195,7 @@ public class CalculatorEvalAST extends ASTVisitor<Double> {
 
     @Override
     public Double visit(ErrorNode node) {
+        System.out.println("Encountered an Error");
         return 0.0;
     }
 }
