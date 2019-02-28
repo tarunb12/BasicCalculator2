@@ -25,6 +25,12 @@ public abstract class ASTVisitor<T> {
     public abstract T visit(Text node);
     public abstract T visit(Parenthesis node);
     public abstract T visit(StatementNodeQueue node);
+    public abstract T visit(GreaterThanExpression node);
+    public abstract T visit(GreaterThanOrEqualToExpression node);
+    public abstract T visit(LessThanExpression node);
+    public abstract T visit(LessThanOrEqualToExpression node);
+    public abstract T visit(EqualToExpression node);
+    public abstract T visit(NotEqualToExpression node);
     public abstract T visit(ErrorNode node);
     // Cast all nodes of type Node, too general of a class to do anything with
     public T visit(Node node) {
@@ -52,6 +58,12 @@ public abstract class ASTVisitor<T> {
         else if (node instanceof Text) return visit((Text) node);
         else if (node instanceof Parenthesis) return visit((Parenthesis) node);
         else if (node instanceof StatementNodeQueue) return visit((StatementNodeQueue) node);
+        else if (node instanceof GreaterThanExpression) return visit((GreaterThanExpression) node);
+        else if (node instanceof GreaterThanOrEqualToExpression) return visit((GreaterThanOrEqualToExpression) node);
+        else if (node instanceof LessThanExpression) return visit((LessThanExpression) node);
+        else if (node instanceof LessThanOrEqualToExpression) return visit((LessThanOrEqualToExpression) node);
+        else if (node instanceof EqualToExpression) return visit((EqualToExpression) node);
+        else if (node instanceof NotEqualToExpression) return visit((NotEqualToExpression) node);
         else return visit((ErrorNode) node);
     }
 }

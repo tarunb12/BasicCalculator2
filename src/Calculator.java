@@ -14,30 +14,33 @@ import java.io.InputStream;
 
 public class Calculator {
     public static void main(String[] args) throws Exception {
-        String inputFile = null; // file name to read from
-        if ( args.length > 0 ) inputFile = args[0]; // reads filename arg from command line
-        InputStream is = System.in;
-        if ( inputFile != null ) is = new FileInputStream(inputFile); // new input stream if valid filename
+        try {
+            String inputFile = null; // file name to read from
+            if ( args.length > 0 ) inputFile = args[0]; // reads filename arg from command line
+            InputStream is = System.in;
+            if ( inputFile != null ) is = new FileInputStream(inputFile); // new input stream if valid filename
+            
+            // create a CharStream that reads from standard input
+            CharStream input = CharStreams.fromStream(is);
+            // create a lexer that feeds off of input CharStream
+            CalculatorLexer lexer = new CalculatorLexer(input);
+            // create a buffer of tokens pulled from the lexer
+            CommonTokenStream tokens = new CommonTokenStream(lexer);
+            // create a parser that feeds off the tokens buffer
+            CalculatorParser parser = new CalculatorParser(tokens);
+            // Create native parse tree
+            ParseTree tree = parser.prog();
 
-        // create a CharStream that reads from standard input
-        CharStream input = CharStreams.fromStream(is);
-        // create a lexer that feeds off of input CharStream
-        CalculatorLexer lexer = new CalculatorLexer(input);
-        // create a buffer of tokens pulled from the lexer
-        CommonTokenStream tokens = new CommonTokenStream(lexer);
-        // create a parser that feeds off the tokens buffer
-        CalculatorParser parser = new CalculatorParser(tokens);
-        // Create native parse tree
-        ParseTree tree = parser.prog();
-
-        // create visitor class to transform parse tree to AST
-        CalculatorEvalVisitor toAST = new CalculatorEvalVisitor();
-        // transform parse tree into custom AST
-        Node ast = toAST.visit(tree);
-        // create AST evaluator class
-        CalculatorEvalAST eval = new CalculatorEvalAST();
-        // visit and evaluate AST
-        eval.visit(ast);
-        // System.out.println("File Text:\n" + tree.getText());
+            // create visitor class to transform parse tree to AST
+            CalculatorEvalVisitor toAST = new CalculatorEvalVisitor();
+            // transform parse tree into custom AST
+            Node ast = toAST.visit(tree);
+            // create AST evaluator class
+            CalculatorEvalAST eval = new CalculatorEvalAST();
+            // visit and evaluate AST
+            eval.visit(ast);
+        } catch (FileNotFoundException e) {
+            // Interactive Mode ?
+        }
     }
 }

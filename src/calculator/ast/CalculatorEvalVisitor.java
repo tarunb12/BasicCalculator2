@@ -176,4 +176,46 @@ public class CalculatorEvalVisitor extends CalculatorBaseVisitor<Node> {
         }
         return statementNodeQueue;
     }
+
+    @Override
+    public Node visitGreaterThan(GreaterThanContext ctx) {
+        Node left = visit(ctx.expr(0));
+        Node right = visit(ctx.expr(1));
+        return new GreaterThanExpression(left, right);
+    }
+
+    @Override
+    public Node visitGreaterThanOrEqualTo(GreaterThanOrEqualToContext ctx) {
+        Node left = visit(ctx.expr(0));
+        Node right = visit(ctx.expr(1));
+        return new GreaterThanOrEqualToExpression(left, right);
+    }
+
+    @Override
+    public Node visitLessThan(LessThanContext ctx) {
+        Node left = visit(ctx.expr(0));
+        Node right = visit(ctx.expr(1));
+        return new LessThanExpression(left, right);
+    }
+
+    @Override
+    public Node visitLessThanOrEqualTo(LessThanOrEqualToContext ctx) {
+        Node left = visit(ctx.expr(0));
+        Node right = visit(ctx.expr(1));
+        return new LessThanOrEqualToExpression(left, right);
+    }
+
+    @Override
+    public Node visitLogicalEqual(LogicalEqualContext ctx) {
+        Node left = visit(ctx.expr(0));
+        Node right = visit(ctx.expr(1));
+        return new EqualToExpression(left, right);
+    }
+
+    @Override
+    public Node visitLogicalNotEqual(LogicalNotEqualContext ctx) {
+        Node left = visit(ctx.expr(0));
+        Node right = visit(ctx.expr(1));
+        return new NotEqualToExpression(left, right);
+    }
 }

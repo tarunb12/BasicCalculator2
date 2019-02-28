@@ -8,7 +8,7 @@ import java.util.Queue;
 import java.util.Map;
 
 public class CalculatorEvalAST extends ASTVisitor<Double> {
-
+    // Note: variable map data persists as long as program is running
     private static Map<String, Double> globalVarDefs = new HashMap<String, Double>();
     private static Queue<Node> state;
 
@@ -191,6 +191,48 @@ public class CalculatorEvalAST extends ASTVisitor<Double> {
         }
         System.out.println("");
         return 0.0;
+    }
+
+    @Override
+    public Double visit(GreaterThanExpression node) {
+        Node left = node.getLeft();
+        Node right = node.getRight();
+        return visit(left) > visit(right) ? 1.0 : 0.0;
+    }
+
+    @Override
+    public Double visit(GreaterThanOrEqualToExpression node) {
+        Node left = node.getLeft();
+        Node right = node.getRight();
+        return visit(left) >= visit(right) ? 1.0 : 0.0;
+    }
+
+    @Override
+    public Double visit(LessThanExpression node) {
+        Node left = node.getLeft();
+        Node right = node.getRight();
+        return visit(left) < visit(right) ? 1.0 : 0.0;
+    }
+
+    @Override
+    public Double visit(LessThanOrEqualToExpression node) {
+        Node left = node.getLeft();
+        Node right = node.getRight();
+        return visit(left) <= visit(right) ? 1.0 : 0.0;
+    }
+
+    @Override
+    public Double visit(EqualToExpression node) {
+        Node left = node.getLeft();
+        Node right = node.getRight();
+        return visit(left) == visit(right) ? 1.0 : 0.0;
+    }
+
+    @Override
+    public Double visit(NotEqualToExpression node) {
+        Node left = node.getLeft();
+        Node right = node.getRight();
+        return visit(left) != visit(right) ? 1.0 : 0.0;
     }
 
     @Override
