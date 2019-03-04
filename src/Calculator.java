@@ -40,7 +40,7 @@ public class Calculator {
             // visit and evaluate AST
             eval.visit(ast);
         } catch (FileNotFoundException e) {
-            // Interactive Mode ?
+            // Interactive Mode ? nah
         }
     }
 }

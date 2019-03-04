@@ -5,7 +5,9 @@ grammar Calculator;
 prog: start* EOF ;
 
 start
-    : expr                              # PrintExpr
+    : function                          # StartFunc
+    | functionCall                      # StartFuncCall
+    | expr                              # PrintExpr
     | varDef                            # Assign
     | printStatement                    # PrintExprText
     | COMMENT                           # Comm
@@ -25,7 +27,7 @@ statement
     | expr                              # ExprStatement
     ;
 
-function
+functionExpr
     : exp LPAR expr RPAR                # Exponential
     | log LPAR expr RPAR                # Logarithm
     | sqrt LPAR expr RPAR               # SquareRoot
@@ -33,9 +35,24 @@ function
     | cos LPAR expr RPAR                # Cosine
     ;
 
+function:
+    functionDef functionName LPAR (parameter (',' parameter)*)* RPAR NL* LBRAC
+        start*
+        (functionRet expr)? NL*
+    RBRAC                               # Func
+    ;
+
+functionRetExpr     : expr ;
+functionName        : VAR ;
+parameter           : VAR ;
+
+functionCall 
+    : VAR LPAR (expr (',' expr)*)* RPAR # FuncCall
+    ;
+
 expr
     : SUBT expr                         # UnaryMinus
-    | function                          # Func
+    | functionExpr                      # FuncExpr
     | expr POW expr                     # Power
     | NOT expr                          # Not
     | expr AND expr                     # And
@@ -96,11 +113,20 @@ print: 'print' ;
 QUOTE: '"' ;
 txt  : ~(NL)*? ;
 
+functionDef : 'define' ;
+functionRet : 'return' ;
+
 LCOM: '/*' ;
 RCOM: '*/' ;
+LBRAC: '{' ;
+RBRAC: '}' ;
 BS  : [\\]      { setText("\\"); } ;
+BSB : [\\]'b'   { setText("\b"); } ;
+BSF : [\\]'f'   { setText("\f"); } ;
 BSNL: [\\]'n'   { setText("\n"); } ;
+BSCR: [\\]'r'   { setText("\r"); } ;
 BSTB: [\\]'t'   { setText("\t"); } ;
-BSQT: [\\]'"'   { setText("\""); } ;
-NL  : '\r'? '\n';
-WS  : [ \t]+ -> skip;
+BSSQ: [\\]'\''  { setText("\'"); } ;
+BSDQ: [\\]'"'   { setText("\""); } ;
+NL  : '\r'? '\n' -> channel(HIDDEN);
+WS  : [ \t]+ -> skip ;

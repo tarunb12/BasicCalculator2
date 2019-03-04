@@ -6,6 +6,7 @@ import calculator.ast.ASTVisitor;
 import calculator.ast.Node;
 
 import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,11 +15,11 @@ public class CalculatorEvalVisitor extends CalculatorBaseVisitor<Node> {
 
     @Override
     public Node visitProg(ProgContext ctx) {
-        List<StartContext> ctxs = ctx.start();
+        List<StartContext> startContexts = ctx.start();
         StartNodeQueue exprNodeQueue = new StartNodeQueue(new LinkedList<Node>());
-        for (StartContext context : ctxs) {
+        for (StartContext context : startContexts) {
             Node start = visit(context);
-            if (!(start instanceof NewLine)) exprNodeQueue.push(visit(context));
+            exprNodeQueue.push(visit(context));
         }
         return exprNodeQueue;
     }
@@ -29,8 +30,39 @@ public class CalculatorEvalVisitor extends CalculatorBaseVisitor<Node> {
     }
 
     @Override
-    public Node visitNewLine(NewLineContext ctx) {
-        return new NewLine();
+    public Node visitFunc(FuncContext ctx) {
+        String functionName = ctx.functionName().getText();
+        List<String> parameters = new ArrayList<String>();
+        List<ParameterContext> parameterCtx = ctx.parameter();
+        for (ParameterContext context : parameterCtx) {
+            parameters.add(context.VAR().getText());
+        }
+        StartNodeQueue exprNodeQueue = new StartNodeQueue(new LinkedList<Node>());
+        List<StartContext> startContexts = ctx.start();
+        for (StartContext context : startContexts) {
+            exprNodeQueue.push(visit(context));
+        }
+        Map<String, Node> localScopeDefinitions = new HashMap<String, Node>();
+        for (String parameter : parameters) {
+            localScopeDefinitions.put(parameter, new Number(0.0));
+        }
+        ExprContext returnExpressionContext = ctx.expr();
+        Node returnExpression;
+        if (returnExpressionContext == null) return new Number(Double.NaN);
+        returnExpression = visit(returnExpressionContext);
+        if (returnExpression == null) returnExpression = new Number(Double.NaN);
+        return new Function(functionName, parameters, localScopeDefinitions, exprNodeQueue, returnExpression);
+    }
+
+    @Override
+    public Node visitFuncCall(FuncCallContext ctx) {
+        String functionName = ctx.VAR().getText();
+        List<ExprContext> ctxs = ctx.expr();
+        List<Node> parameters = new ArrayList<Node>();
+        for (ExprContext context : ctxs) {
+            parameters.add(visit(context));
+        }
+        return new FunctionCall(functionName, parameters);
     }
 
     @Override
@@ -56,31 +88,31 @@ public class CalculatorEvalVisitor extends CalculatorBaseVisitor<Node> {
     @Override
     public Node visitExponential(ExponentialContext ctx) {
         Node value = visit(ctx.expr());
-        return new ExponentialFunction(value);
+        return new ExponentialFunctionExpression(value);
     }
 
     @Override
     public Node visitLogarithm(LogarithmContext ctx) {
         Node value = visit(ctx.expr());
-        return new LogarithmFunction(value);
+        return new LogarithmFunctionExpression(value);
     }
 
     @Override
     public Node visitSquareRoot(SquareRootContext ctx) {
         Node value = visit(ctx.expr());
-        return new SquareRootFunction(value);
+        return new SquareRootFunctionExpression(value);
     }
 
     @Override
     public Node visitSine(SineContext ctx) {
         Node value = visit(ctx.expr());
-        return new SineFunction(value);
+        return new SineFunctionExpression(value);
     }
 
     @Override
     public Node visitCosine(CosineContext ctx) {
         Node value = visit(ctx.expr());
-        return new CosineFunction(value);
+        return new CosineFunctionExpression(value);
     }
 
     @Override

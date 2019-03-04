@@ -3,15 +3,16 @@ package calculator.ast;
 public abstract class ASTVisitor<T> {
     public abstract T visit(StartNodeQueue node);
     public abstract T visit(PrintExpr node);
-    public abstract T visit(NewLine node);
+    public abstract T visit(Function node);
+    public abstract T visit(FunctionCall node);
     public abstract T visit(VariableDefinition node);
     public abstract T visit(UnaryMinusExpression node);
     public abstract T visit(PowerExpression node);
-    public abstract T visit(ExponentialFunction node);
-    public abstract T visit(LogarithmFunction node);
-    public abstract T visit(SquareRootFunction node);
-    public abstract T visit(SineFunction node);
-    public abstract T visit(CosineFunction node);
+    public abstract T visit(ExponentialFunctionExpression node);
+    public abstract T visit(LogarithmFunctionExpression node);
+    public abstract T visit(SquareRootFunctionExpression node);
+    public abstract T visit(SineFunctionExpression node);
+    public abstract T visit(CosineFunctionExpression node);
     public abstract T visit(NotExpression node);
     public abstract T visit(AndExpression node);
     public abstract T visit(OrExpression or);
@@ -36,15 +37,16 @@ public abstract class ASTVisitor<T> {
     public T visit(Node node) {
         if (node instanceof StartNodeQueue) return visit((StartNodeQueue) node);
         else if (node instanceof PrintExpr) return visit((PrintExpr) node);
-        else if (node instanceof NewLine) return visit((NewLine) node);
+        else if (node instanceof Function) return visit((Function) node);
+        else if (node instanceof FunctionCall) return visit((FunctionCall) node);
         else if (node instanceof VariableDefinition) return visit((VariableDefinition) node);
         else if (node instanceof UnaryMinusExpression) return visit((UnaryMinusExpression) node);
         else if (node instanceof PowerExpression) return visit((PowerExpression) node);
-        else if (node instanceof ExponentialFunction) return visit((ExponentialFunction) node);
-        else if (node instanceof LogarithmFunction) return visit((LogarithmFunction) node);
-        else if (node instanceof SquareRootFunction) return visit((SquareRootFunction) node);
-        else if (node instanceof SineFunction) return visit((SineFunction) node);
-        else if (node instanceof CosineFunction) return visit((CosineFunction) node);
+        else if (node instanceof ExponentialFunctionExpression) return visit((ExponentialFunctionExpression) node);
+        else if (node instanceof LogarithmFunctionExpression) return visit((LogarithmFunctionExpression) node);
+        else if (node instanceof SquareRootFunctionExpression) return visit((SquareRootFunctionExpression) node);
+        else if (node instanceof SineFunctionExpression) return visit((SineFunctionExpression) node);
+        else if (node instanceof CosineFunctionExpression) return visit((CosineFunctionExpression) node);
         else if (node instanceof NotExpression) return visit((NotExpression) node);
         else if (node instanceof AndExpression) return visit((AndExpression) node);
         else if (node instanceof OrExpression) return visit((OrExpression) node);
@@ -64,6 +66,7 @@ public abstract class ASTVisitor<T> {
         else if (node instanceof LessThanOrEqualToExpression) return visit((LessThanOrEqualToExpression) node);
         else if (node instanceof EqualToExpression) return visit((EqualToExpression) node);
         else if (node instanceof NotEqualToExpression) return visit((NotEqualToExpression) node);
+        else if (node instanceof FunctionCall) return visit((FunctionCall) node);
         else return visit((ErrorNode) node);
     }
 }

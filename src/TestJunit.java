@@ -193,10 +193,18 @@ public class TestJunit {
          BinaryOperation and = (a, b) -> a != 0.0 && b != 0.0 ? 1.0 : 0.0;
          BinaryOperation or = (a, b) -> a != 0.0 || b != 0.0 ? 1.0 : 0.0;
          UnaryOperation not = a -> a == 0 ? 1.0 : 0.0;
+         BinaryOperation gt = (a, b) -> a > b ? 1.0 : 0.0;
+         BinaryOperation gte = (a, b) -> a >= b ? 1.0 : 0.0;
+         BinaryOperation lt = (a, b) -> a < b ? 1.0 : 0.0;
+         BinaryOperation lte = (a, b) -> a <= b ? 1.0 : 0.0;
+         BinaryOperation eq = (a, b) -> a == b ? 1.0 : 0.0;
+         BinaryOperation neq = (a, b) -> a != b ? 1.0 : 0.0;
+
          booleanTests = new LinkedHashMap<String, String>();
          booleanTests.put("2&&4", Double.toString(and.compute(2,4)));
          booleanTests.put("2||4", Double.toString(or.compute(2,4)));
          booleanTests.put("!2||!4", Double.toString(or.compute(not.compute(2),not.compute(4))));
+         booleanTests.put("!2==!4", Double.toString(eq.compute(not.compute(2), not.compute(4))));
          booleanTests.put("!3&&4.24||2&&!0", Double.toString(or.compute(and.compute(not.compute(3),4.24),and.compute(2,not.compute(0)))));
          booleanTests.put("!!2&&(4-2^2+2^0)", Double.toString(and.compute(not.compute(not.compute(2)),4-Math.pow(2,2)+Math.pow(2,0))));
          booleanTests.put("e(3.14159&&2.71828)", Double.toString(Math.exp(and.compute(3.14159, 2.71828))));
@@ -226,7 +234,7 @@ public class TestJunit {
             Double.toString(5*Math.exp(-2)+2*(Math.sin(5*Math.exp(-2))+Math.cos(5*Math.exp(-2))+Math.sqrt(5*Math.exp(-2)))/7),
             Double.toString(Math.pow(Math.exp(1),Math.pow(Math.exp(1),Math.log10(1)/Math.log(Math.exp(1))))+Math.log10(1)),
          };
-         assert commands.length == results.length : "Invalid correspondence of commands to results";
+         assert commands.length == results.length : "Invalid correspondence of commands to results (Variable Tests)";
          for (int i = 0; i < commands.length; i++) {
             ArrayList<String> cmds = new ArrayList<String>();
             for (int j = 0; j < commands[i].length; j++) {
@@ -250,7 +258,7 @@ public class TestJunit {
             Double.toString(0.0),
             Double.toString(Math.sqrt(Math.sqrt((Math.exp(8)-1)/(Math.exp(4)+1)+1))),
          };
-         assert commands.length == results.length : "Invalid correspondence of commands to results";
+         assert commands.length == results.length : "Invalid correspondence of commands to results (Comment Tests)";
          for (int i = 0; i < commands.length; i++) {
             ArrayList<String> cmds = new ArrayList<String>();
             for (int j = 0; j < commands[i].length; j++) {

@@ -4,25 +4,28 @@ import calculator.ast.ASTVisitor;
 
 import java.util.HashMap;
 import java.util.Queue;
-
+import java.util.Stack;
+import java.util.List;
 import java.util.Map;
 
 public class CalculatorEvalAST extends ASTVisitor<Double> {
-    // Note: variable map data persists as long as program is running
-    private static Map<String, Double> globalVarDefs = new HashMap<String, Double>();
-    private static Queue<Node> state;
+    // Note: variable map data persists as long as program is running (in different instances)
+    // Make of type Node
+    private static Stack<Map<String, Node>> scopes = new Stack<Map<String, Node>>();
+    private Node nextNode = null;
 
-    private static boolean readExpression = false;
-    private static Double currentReadValue = 0.0;
+    private boolean readExpression = false;
+    private double currentReadValue = 0.0;
 
     @Override
     public Double visit(StartNodeQueue node) {
         while (!node.isEmpty()) {
             Node first = node.remove();
-            state = node.getQueue();
+            if (!node.isEmpty()) nextNode = node.peek();
             Double value = visit(first);
             if (readExpression) {
                 node.remove();
+                nextNode = null;
                 currentReadValue = 0.0;
                 readExpression = false;
                 if (first instanceof PrintExpr) System.out.println(value);
@@ -40,16 +43,49 @@ public class CalculatorEvalAST extends ASTVisitor<Double> {
     }
 
     @Override
-    public Double visit(NewLine node) {
-        return 0.0;
+    public Double visit(Function node) {
+        if (scopes.empty()) scopes.add(new HashMap<String, Node>());
+        Map<String, Node> currentScope = scopes.peek();
+        currentScope.put(node.getFunctionName(), node);
+        return Double.NaN;
+    }
+
+    @Override
+    public Double visit(FunctionCall node) {
+        if (scopes.empty()) return Double.NaN;
+        String functionName = node.getFunctionName();
+        List<Node> parameters = node.getParameters();
+        if (parameters.size() != node.getParameters().size()) return Double.NaN;
+        if (scopes.peek().containsKey(functionName)) {
+            Node declaration = scopes.peek().get(functionName);
+            if (declaration instanceof Function) {
+                Function functionDeclaration = (Function) declaration;
+                System.out.println(parameters.size());
+                for (int i = 0; i < parameters.size(); i++) {
+                    String parameter = functionDeclaration.getParameters().get(i);
+                    Number parameterValue = new Number(visit(parameters.get(i)));
+                    System.out.printf("%s, %f\n", parameter, parameterValue.getValue());
+                    functionDeclaration.defineParameters(parameter, parameterValue);
+                }
+                Queue<Node> exprNodeQueue = functionDeclaration.getExprNodeQueue();
+                for (Node expr : exprNodeQueue) {
+                    visit(expr);
+                }
+            }
+        }
+        return Double.NaN;
     }
 
     @Override
     public Double visit(VariableDefinition node) {
         String variableName = node.getDeclarationName();
         Node value = node.getDeclarationValue();
-        globalVarDefs.put(variableName, visit(value));
-        return 0.0;
+        if (scopes.empty()) scopes.push(new HashMap<String, Node>());
+        Map<String, Node> currentScope = scopes.peek();
+        currentScope.put(variableName, new Number(visit(value)));
+        scopes.pop();
+        scopes.push(currentScope);
+        return Double.NaN;
     }
 
     @Override
@@ -66,31 +102,31 @@ public class CalculatorEvalAST extends ASTVisitor<Double> {
     }
 
     @Override
-    public Double visit(ExponentialFunction node) {
+    public Double visit(ExponentialFunctionExpression node) {
         Node value = node.getValue();
         return Math.exp(visit(value));
     }
 
     @Override
-    public Double visit(LogarithmFunction node) {
+    public Double visit(LogarithmFunctionExpression node) {
         Node value = node.getValue();
         return Math.log10(visit(value));
     }
 
     @Override
-    public Double visit(SquareRootFunction node) {
+    public Double visit(SquareRootFunctionExpression node) {
         Node value = node.getValue();
         return Math.sqrt(visit(value));
     }
 
     @Override
-    public Double visit(SineFunction node) {
+    public Double visit(SineFunctionExpression node) {
         Node value = node.getValue();
         return Math.sin(visit(value));
     }
 
     @Override
-    public Double visit(CosineFunction node) {
+    public Double visit(CosineFunctionExpression node) {
         Node value = node.getValue();
         return Math.cos(visit(value));
     }
@@ -98,21 +134,21 @@ public class CalculatorEvalAST extends ASTVisitor<Double> {
     @Override
     public Double visit(NotExpression node) {
         Node value = node.getValue();
-        return visit(value) == 0.0 ? 1.0 : 0.0;
+        return (double) visit(value) == 0.0 ? 1.0 : 0.0;
     }
 
     @Override
     public Double visit(AndExpression node) {
         Node left = node.getLeft();
         Node right = node.getRight();
-        return visit(left) != 0.0 && visit(right) != 0.0 ? 1.0 : 0.0;
+        return (double) visit(left) != 0.0 && (double) visit(right) != 0.0 ? 1.0 : 0.0;
     }
 
     @Override
     public Double visit(OrExpression node) {
         Node left = node.getLeft();
         Node right = node.getRight();
-        return visit(left) != 0.0 || visit(right) != 0.0 ? 1.0 : 0.0;
+        return (double) visit(left) != 0.0 || (double) visit(right) != 0.0 ? 1.0 : 0.0;
     }
 
     @Override
@@ -150,22 +186,27 @@ public class CalculatorEvalAST extends ASTVisitor<Double> {
 
     @Override
     public Double visit(Variable node) {
+        if (scopes.empty()) return Double.NaN;
         String variableName = node.getValue();
-        if (globalVarDefs.containsKey(variableName)) return globalVarDefs.get(variableName);
-        return 0.0;
+        Map<String, Node> currentScope = scopes.peek();
+        if (currentScope.containsKey(variableName)) {
+            Node localDefinition = currentScope.get(variableName);
+            if (localDefinition instanceof Number) return ((Number) localDefinition).getValue();
+        }
+        return Double.NaN;
     }
 
     @Override
     public Double visit(Read node) {
         readExpression = true;
-        if (state.isEmpty()) return 0.0;
-        if (currentReadValue == 0.0) currentReadValue = visit(state.peek());
+        if (nextNode == null) return Double.NaN;
+        if (currentReadValue == 0.0) currentReadValue = visit(nextNode);
         return currentReadValue;
     }
 
     @Override
     public Double visit(Text node) {
-        return 0.0;
+        return Double.NaN;
     }
 
     @Override
@@ -190,54 +231,53 @@ public class CalculatorEvalAST extends ASTVisitor<Double> {
             }
         }
         System.out.println("");
-        return 0.0;
+        return Double.NaN;
     }
 
     @Override
     public Double visit(GreaterThanExpression node) {
         Node left = node.getLeft();
         Node right = node.getRight();
-        return visit(left) > visit(right) ? 1.0 : 0.0;
+        return (double) visit(left) > (double) visit(right) ? 1.0 : 0.0;
     }
 
     @Override
     public Double visit(GreaterThanOrEqualToExpression node) {
         Node left = node.getLeft();
         Node right = node.getRight();
-        return visit(left) >= visit(right) ? 1.0 : 0.0;
+        return (double) visit(left) >= (double) visit(right) ? 1.0 : 0.0;
     }
 
     @Override
     public Double visit(LessThanExpression node) {
         Node left = node.getLeft();
         Node right = node.getRight();
-        return visit(left) < visit(right) ? 1.0 : 0.0;
+        return (double) visit(left) < (double) visit(right) ? 1.0 : 0.0;
     }
 
     @Override
     public Double visit(LessThanOrEqualToExpression node) {
         Node left = node.getLeft();
         Node right = node.getRight();
-        return visit(left) <= visit(right) ? 1.0 : 0.0;
+        return (double) visit(left) <= (double) visit(right) ? 1.0 : 0.0;
     }
 
     @Override
     public Double visit(EqualToExpression node) {
         Node left = node.getLeft();
         Node right = node.getRight();
-        return visit(left) == visit(right) ? 1.0 : 0.0;
+        return (double) visit(left) == (double) visit(right) ? 1.0 : 0.0;
     }
 
     @Override
     public Double visit(NotEqualToExpression node) {
         Node left = node.getLeft();
         Node right = node.getRight();
-        return visit(left) != visit(right) ? 1.0 : 0.0;
+        return (double) visit(left) != (double) visit(right) ? 1.0 : 0.0;
     }
 
     @Override
     public Double visit(ErrorNode node) {
-        System.out.println("Encountered an Error");
-        return 0.0;
+        return Double.NaN;
     }
 }

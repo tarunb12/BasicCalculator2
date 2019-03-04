@@ -6,8 +6,6 @@ class ErrorNode extends Node { };
 
 class Expression extends Node { };
 
-class NewLine extends Node { };
-
 class PrintExpr extends Node {
     private final Node value;
 
