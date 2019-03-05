@@ -225,16 +225,18 @@ public class CalculatorEvalAST extends ASTVisitor<Double> {
     @Override
     public Double visit(TextNodeQueue node) {
         boolean firstNode = true;
-        while (!node.isEmpty()) {
+        Queue<Node> nodeQueue = node.getQueue();
+        Iterator<Node> it = nodeQueue.iterator();
+        while (it.hasNext()) {
             if (!firstNode) System.out.print(", ");
             firstNode = false;
-            Node first = node.remove();
-            if (first instanceof Text) {
-                String text = ((Text) first).getValue();
+            Node currentNode = it.next();
+            if (currentNode instanceof Text) {
+                String text = ((Text) currentNode).getValue();
                 System.out.print(text);
             }
             else {
-                System.out.print(visit(first));
+                System.out.print(visit(currentNode));
             }
         }
         System.out.println("");

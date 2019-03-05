@@ -6,7 +6,3 @@ define test(v, q) {
 x = 5
 test(x, 2 * x)
 test(2 * x, x)
-/* Fix node pushing afer function visitation or something 
-   Or what happens afer visiting a print expression
-   Or something
-*/

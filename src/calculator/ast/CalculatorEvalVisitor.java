@@ -2,7 +2,6 @@ package calculator.ast;
 
 import calculator.antlr.CalculatorBaseVisitor;
 import calculator.antlr.CalculatorParser.*;
-import calculator.ast.ASTVisitor;
 import calculator.ast.Node;
 
 import java.util.LinkedList;
