@@ -23,8 +23,8 @@ class StartNodeQueue extends NodeQueue {
     }
 }
 
-class StatementNodeQueue extends NodeQueue {
-    public StatementNodeQueue(Queue<Node> nodeQueue) {
+class TextNodeQueue extends NodeQueue {
+    public TextNodeQueue(Queue<Node> nodeQueue) {
         super(nodeQueue);
     }
 }

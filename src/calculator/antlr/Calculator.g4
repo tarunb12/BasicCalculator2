@@ -6,10 +6,9 @@ prog: start* EOF ;
 
 start
     : function                          # StartFunc
-    | functionCall                      # StartFuncCall
     | expr                              # PrintExpr
     | varDef                            # Assign
-    | printStatement                    # PrintExprText
+    | printText                         # PrintExpressionText
     | COMMENT                           # Comm
     | NL                                # NewLine
     ;
@@ -18,11 +17,11 @@ varDef  : VAR EQ expr                   # VariableDefinition ;
 
 COMMENT : LCOM (.)*? RCOM -> channel(HIDDEN) ;
 
-printStatement
-    : print statement (',' statement)*  # PrintExpressionText
+printText
+    : print text (',' text)*            # PrintExprText
     ;
 
-statement
+text
     : QUOTE txt QUOTE                   # TextStatement
     | expr                              # ExprStatement
     ;
@@ -47,11 +46,12 @@ functionName        : VAR ;
 parameter           : VAR ;
 
 functionCall 
-    : VAR LPAR (expr (',' expr)*)* RPAR # FuncCall
+    : functionName LPAR (expr (',' expr)*)* RPAR # FuncCall
     ;
 
 expr
     : SUBT expr                         # UnaryMinus
+    | functionCall                      # ExprFuncCall
     | functionExpr                      # FuncExpr
     | expr POW expr                     # Power
     | NOT expr                          # Not
@@ -128,5 +128,5 @@ BSCR: [\\]'r'   { setText("\r"); } ;
 BSTB: [\\]'t'   { setText("\t"); } ;
 BSSQ: [\\]'\''  { setText("\'"); } ;
 BSDQ: [\\]'"'   { setText("\""); } ;
-NL  : '\r'? '\n' -> channel(HIDDEN);
+NL  : '\r'? '\n' -> channel(HIDDEN) ;
 WS  : [ \t]+ -> skip ;

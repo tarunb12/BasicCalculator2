@@ -255,7 +255,7 @@ public class TestJunit {
          final String[] results = {
             Double.toString(5*6),
             Double.toString(2/Math.sin(2)),
-            Double.toString(0.0),
+            Double.toString(Double.NaN),
             Double.toString(Math.sqrt(Math.sqrt((Math.exp(8)-1)/(Math.exp(4)+1)+1))),
          };
          assert commands.length == results.length : "Invalid correspondence of commands to results (Comment Tests)";

@@ -3,15 +3,17 @@ package calculator.ast;
 import calculator.ast.ASTVisitor;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Iterator;
+import java.util.Deque;
 import java.util.Queue;
-import java.util.Stack;
 import java.util.List;
 import java.util.Map;
 
 public class CalculatorEvalAST extends ASTVisitor<Double> {
     // Note: variable map data persists as long as program is running (in different instances)
     // Make of type Node
-    private static Stack<Map<String, Node>> scopes = new Stack<Map<String, Node>>();
+    private static Deque<Map<String, Node>> scopes = new LinkedList<Map<String, Node>>();
     private Node nextNode = null;
 
     private boolean readExpression = false;
@@ -44,7 +46,7 @@ public class CalculatorEvalAST extends ASTVisitor<Double> {
 
     @Override
     public Double visit(Function node) {
-        if (scopes.empty()) scopes.add(new HashMap<String, Node>());
+        if (scopes.isEmpty()) scopes.add(new HashMap<String, Node>());
         Map<String, Node> currentScope = scopes.peek();
         currentScope.put(node.getFunctionName(), node);
         return Double.NaN;
@@ -52,7 +54,7 @@ public class CalculatorEvalAST extends ASTVisitor<Double> {
 
     @Override
     public Double visit(FunctionCall node) {
-        if (scopes.empty()) return Double.NaN;
+        if (scopes.isEmpty()) return Double.NaN;
         String functionName = node.getFunctionName();
         List<Node> parameters = node.getParameters();
         if (parameters.size() != node.getParameters().size()) return Double.NaN;
@@ -60,17 +62,19 @@ public class CalculatorEvalAST extends ASTVisitor<Double> {
             Node declaration = scopes.peek().get(functionName);
             if (declaration instanceof Function) {
                 Function functionDeclaration = (Function) declaration;
-                System.out.println(parameters.size());
+                scopes.push(functionDeclaration.getLocalScope());
                 for (int i = 0; i < parameters.size(); i++) {
                     String parameter = functionDeclaration.getParameters().get(i);
                     Number parameterValue = new Number(visit(parameters.get(i)));
-                    System.out.printf("%s, %f\n", parameter, parameterValue.getValue());
                     functionDeclaration.defineParameters(parameter, parameterValue);
                 }
                 Queue<Node> exprNodeQueue = functionDeclaration.getExprNodeQueue();
                 for (Node expr : exprNodeQueue) {
                     visit(expr);
                 }
+                Double returnValue = visit(functionDeclaration.getReturnExpression());
+                scopes.pop();
+                return returnValue;
             }
         }
         return Double.NaN;
@@ -80,7 +84,7 @@ public class CalculatorEvalAST extends ASTVisitor<Double> {
     public Double visit(VariableDefinition node) {
         String variableName = node.getDeclarationName();
         Node value = node.getDeclarationValue();
-        if (scopes.empty()) scopes.push(new HashMap<String, Node>());
+        if (scopes.isEmpty()) scopes.push(new HashMap<String, Node>());
         Map<String, Node> currentScope = scopes.peek();
         currentScope.put(variableName, new Number(visit(value)));
         scopes.pop();
@@ -186,14 +190,17 @@ public class CalculatorEvalAST extends ASTVisitor<Double> {
 
     @Override
     public Double visit(Variable node) {
-        if (scopes.empty()) return Double.NaN;
+        if (scopes.isEmpty()) return Double.NaN;
         String variableName = node.getValue();
-        Map<String, Node> currentScope = scopes.peek();
-        if (currentScope.containsKey(variableName)) {
-            Node localDefinition = currentScope.get(variableName);
-            if (localDefinition instanceof Number) return ((Number) localDefinition).getValue();
+        Iterator<Map<String, Node>> it = scopes.iterator();
+        while(it.hasNext()) {
+            Map<String, Node> scope = it.next();
+            if (scope.containsKey(variableName)) {
+                Node localDefinition = scope.get(variableName);
+                if (localDefinition instanceof Number) return ((Number) localDefinition).getValue();
+            }
         }
-        return Double.NaN;
+        return 0.0;
     }
 
     @Override
@@ -216,7 +223,7 @@ public class CalculatorEvalAST extends ASTVisitor<Double> {
     }
 
     @Override
-    public Double visit(StatementNodeQueue node) {
+    public Double visit(TextNodeQueue node) {
         boolean firstNode = true;
         while (!node.isEmpty()) {
             if (!firstNode) System.out.print(", ");

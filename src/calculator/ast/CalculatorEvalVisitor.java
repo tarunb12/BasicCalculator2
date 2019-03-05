@@ -48,15 +48,17 @@ public class CalculatorEvalVisitor extends CalculatorBaseVisitor<Node> {
         }
         ExprContext returnExpressionContext = ctx.expr();
         Node returnExpression;
-        if (returnExpressionContext == null) return new Number(Double.NaN);
-        returnExpression = visit(returnExpressionContext);
-        if (returnExpression == null) returnExpression = new Number(Double.NaN);
+        if (returnExpressionContext == null) returnExpression = new Number(Double.NaN);
+        else {
+            returnExpression = visit(returnExpressionContext);
+            if (returnExpression == null) returnExpression = new Number(Double.NaN);
+        }
         return new Function(functionName, parameters, localScopeDefinitions, exprNodeQueue, returnExpression);
     }
 
     @Override
     public Node visitFuncCall(FuncCallContext ctx) {
-        String functionName = ctx.VAR().getText();
+        String functionName = ctx.functionName().getText();
         List<ExprContext> ctxs = ctx.expr();
         List<Node> parameters = new ArrayList<Node>();
         for (ExprContext context : ctxs) {
@@ -199,14 +201,14 @@ public class CalculatorEvalVisitor extends CalculatorBaseVisitor<Node> {
     }
 
     @Override
-    public Node visitPrintExpressionText(PrintExpressionTextContext ctx) {
-        List<StatementContext> ctxs = ctx.statement();
-        StatementNodeQueue statementNodeQueue = new StatementNodeQueue(new LinkedList<Node>());
-        for (StatementContext context : ctxs) {
+    public Node visitPrintExprText(PrintExprTextContext ctx) {
+        List<TextContext> ctxs = ctx.text();
+        TextNodeQueue textNodeQueue = new TextNodeQueue(new LinkedList<Node>());
+        for (TextContext context : ctxs) {
             Node start = visit(context);
-            statementNodeQueue.push(visit(context));
+            textNodeQueue.push(visit(context));
         }
-        return statementNodeQueue;
+        return textNodeQueue;
     }
 
     @Override

@@ -25,7 +25,7 @@ public abstract class ASTVisitor<T> {
     public abstract T visit(Read node);
     public abstract T visit(Text node);
     public abstract T visit(Parenthesis node);
-    public abstract T visit(StatementNodeQueue node);
+    public abstract T visit(TextNodeQueue node);
     public abstract T visit(GreaterThanExpression node);
     public abstract T visit(GreaterThanOrEqualToExpression node);
     public abstract T visit(LessThanExpression node);
@@ -59,7 +59,7 @@ public abstract class ASTVisitor<T> {
         else if (node instanceof Read) return visit((Read) node);
         else if (node instanceof Text) return visit((Text) node);
         else if (node instanceof Parenthesis) return visit((Parenthesis) node);
-        else if (node instanceof StatementNodeQueue) return visit((StatementNodeQueue) node);
+        else if (node instanceof TextNodeQueue) return visit((TextNodeQueue) node);
         else if (node instanceof GreaterThanExpression) return visit((GreaterThanExpression) node);
         else if (node instanceof GreaterThanOrEqualToExpression) return visit((GreaterThanOrEqualToExpression) node);
         else if (node instanceof LessThanExpression) return visit((LessThanExpression) node);

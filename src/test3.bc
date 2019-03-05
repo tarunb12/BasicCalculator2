@@ -1,3 +1,12 @@
 define test(v, q) {
     v + q
+    print "hello", "what"
+    return v + 2 * q
 }
+x = 5
+test(x, 2 * x)
+test(2 * x, x)
+/* Fix node pushing afer function visitation or something 
+   Or what happens afer visiting a print expression
+   Or something
+*/

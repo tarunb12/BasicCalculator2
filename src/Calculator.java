@@ -39,6 +39,8 @@ public class Calculator {
             CalculatorEvalAST eval = new CalculatorEvalAST();
             // visit and evaluate AST
             eval.visit(ast);
+
+            // System.out.println("Parse Tree:\n" + tree.toStringTree(parser));
         } catch (FileNotFoundException e) {
             // Interactive Mode ? nah
         }
