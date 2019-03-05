@@ -16,4 +16,6 @@ $ java Calculator <filename>.bc
 $ java TestRunner
 ~~~~
 
-Please ensure you are in the src directory when running the program and testing.
+Please ensure you are in the `./src` directory when running the program and testing.
+
+Any input files are relative to the `./src` directory.

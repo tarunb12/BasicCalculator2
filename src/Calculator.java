@@ -40,9 +40,11 @@ public class Calculator {
             // visit and evaluate AST
             eval.visit(ast);
 
+            // Implement printAST
+
             // System.out.println("Parse Tree:\n" + tree.toStringTree(parser));
         } catch (FileNotFoundException e) {
-            // Interactive Mode ? nah
+            // Interactive Mode / Interpreter ? nah
         }
     }
 }
