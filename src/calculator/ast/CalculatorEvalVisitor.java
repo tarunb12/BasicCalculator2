@@ -36,7 +36,7 @@ public class CalculatorEvalVisitor extends CalculatorBaseVisitor<Node> {
         for (ParameterContext context : parameterCtx) {
             parameters.add(context.VAR().getText());
         }
-        StartNodeQueue exprNodeQueue = new StartNodeQueue(new LinkedList<Node>());
+        ExprNodeQueue exprNodeQueue = new ExprNodeQueue(new LinkedList<Node>());
         List<StartContext> startContexts = ctx.start();
         for (StartContext context : startContexts) {
             exprNodeQueue.push(visit(context));
@@ -45,14 +45,10 @@ public class CalculatorEvalVisitor extends CalculatorBaseVisitor<Node> {
         for (String parameter : parameters) {
             localScopeDefinitions.put(parameter, new Number(0.0));
         }
-        ExprContext returnExpressionContext = ctx.expr();
-        Node returnExpression;
-        if (returnExpressionContext == null) returnExpression = new Number(Double.NaN);
-        else {
-            returnExpression = visit(returnExpressionContext);
-            if (returnExpression == null) returnExpression = new Number(Double.NaN);
-        }
-        return new Function(functionName, parameters, localScopeDefinitions, exprNodeQueue, returnExpression);
+        ReturnExprContext returnExprContext = ctx.returnExpr();
+        Node returnExpression = returnExprContext != null ? visit(returnExprContext) : new Number(Double.NaN);
+        exprNodeQueue.push(returnExpression);
+        return new Function(functionName, parameters, localScopeDefinitions, exprNodeQueue);
     }
 
     @Override
@@ -67,10 +63,112 @@ public class CalculatorEvalVisitor extends CalculatorBaseVisitor<Node> {
     }
 
     @Override
+    public Node visitReturnExpr(ReturnExprContext ctx) {
+        Node returnValue = visit(ctx.expr());
+        return new Return(returnValue);
+    }
+
+    @Override
+    public Node visitIfDefStatement(IfDefStatementContext ctx) {
+        ElseBranchContext elseBranchCtx = ctx.elseBranch();
+        Node ifBranch = visit(ctx.ifBranch());
+        Node elseBranch = elseBranchCtx != null ? visit(ctx.elseBranch()) : new Number(0.0);
+        return new IfElseStatement(ifBranch, elseBranch);
+    }
+
+    @Override
+    public Node visitIfBranch(IfBranchContext ctx) {
+        Node condition = visit(ctx.expr());
+        ExprNodeQueue exprNodeQueue = new ExprNodeQueue(new LinkedList<Node>());
+        List<StartContext> startContexts = ctx.start();
+        for (StartContext context : startContexts) {
+            exprNodeQueue.push(visit(context));
+        }
+        Map<String, Node> localScopeDefinitions = new HashMap<String, Node>();
+        ReturnExprContext returnExprContext = ctx.returnExpr();
+        Node returnExpression = returnExprContext != null ? visit(returnExprContext) : new Number(Double.NaN);
+        exprNodeQueue.push(returnExpression);
+        return new IfBlock(exprNodeQueue, condition, localScopeDefinitions);
+    }
+
+    @Override
+    public Node visitElseBranch(ElseBranchContext ctx) {
+        ExprNodeQueue exprNodeQueue = new ExprNodeQueue(new LinkedList<Node>());
+        List<StartContext> startContexts = ctx.start();
+        for (StartContext context : startContexts) {
+            exprNodeQueue.push(visit(context));
+        }
+        Map<String, Node> localScopeDefinitions = new HashMap<String, Node>();
+        ReturnExprContext returnExprContext = ctx.returnExpr();
+        Node returnExpression = returnExprContext != null ? visit(returnExprContext) : new Number(Double.NaN);
+        exprNodeQueue.push(returnExpression);
+        return new ElseBlock(exprNodeQueue, localScopeDefinitions);
+    }
+
+    @Override
     public Node visitVariableDefinition(VariableDefinitionContext ctx) {
         String variableName = ctx.VAR().getText();
         Node value = visit(ctx.expr());
         return new VariableDefinition(variableName, value);
+    }
+
+    @Override
+    public Node visitPowEqual(PowEqualContext ctx) {
+        String variableName = ctx.VAR().getText();
+        Node value = visit(ctx.expr());
+        return new PowerRedefinition(variableName, value);
+    }
+
+    @Override
+    public Node visitMultEqual(MultEqualContext ctx) {
+        String variableName = ctx.VAR().getText();
+        Node value = visit(ctx.expr());
+        return new MultiplicationRedefinition(variableName, value);
+    }
+
+    @Override
+    public Node visitDivEqual(DivEqualContext ctx) {
+        String variableName = ctx.VAR().getText();
+        Node value = visit(ctx.expr());
+        return new DivisionRedefinition(variableName, value);
+    }
+
+    @Override
+    public Node visitAddEqual(AddEqualContext ctx) {
+        String variableName = ctx.VAR().getText();
+        Node value = visit(ctx.expr());
+        return new AdditionRedefinition(variableName, value);
+    }
+
+    @Override
+    public Node visitSubtEqual(SubtEqualContext ctx) {
+        String variableName = ctx.VAR().getText();
+        Node value = visit(ctx.expr());
+        return new SubtractionRedefinition(variableName, value);
+    }
+
+    @Override
+    public Node visitPreIncrement(PreIncrementContext ctx) {
+        String variableName = ctx.VAR().getText();
+        return new PreIncrement(variableName);
+    }
+
+    @Override
+    public Node visitPostIncrement(PostIncrementContext ctx) {
+        String variableName = ctx.VAR().getText();
+        return new PostIncrement(variableName);
+    }
+
+    @Override
+    public Node visitPreDecrement(PreDecrementContext ctx) {
+        String variableName = ctx.VAR().getText();
+        return new PreDecrement(variableName);
+    }
+
+    @Override
+    public Node visitPostDecrement(PostDecrementContext ctx) {
+        String variableName = ctx.VAR().getText();
+        return new PostDecrement(variableName);
     }
 
     @Override

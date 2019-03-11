@@ -4,9 +4,9 @@ public class Declaration extends Node {
     private final String declarationName;
     private final Node declarationValue;
 
-    public Declaration(String declarationName, Node declararionValue) {
+    public Declaration(String declarationName, Node declarationValue) {
         this.declarationName = declarationName;
-        this.declarationValue = declararionValue;
+        this.declarationValue = declarationValue;
     }
 
     public final String getDeclarationName() { return this.declarationName; }

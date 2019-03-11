@@ -2,18 +2,16 @@ package calculator.ast;
 
 import calculator.ast.ASTVisitor;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Iterator;
+import java.util.HashMap;
 import java.util.Deque;
 import java.util.Queue;
 import java.util.List;
 import java.util.Map;
 
 public class CalculatorEvalAST extends ASTVisitor<Double> {
-    // Note: variable map data persists as long as program is running (in different instances)
-    // Make of type Node
-    private static Deque<Map<String, Node>> scopes = new LinkedList<Map<String, Node>>();
+    private Deque<Map<String, Node>> scopes = new LinkedList<Map<String, Node>>();
     private Node nextNode = null;
 
     private boolean readExpression = false;
@@ -37,10 +35,29 @@ public class CalculatorEvalAST extends ASTVisitor<Double> {
     }
 
     @Override
+    public Double visit(ExprNodeQueue node) {
+        Iterator<Node> it = node.getQueue().iterator();
+        while (it.hasNext()) {
+            Node first = it.next();
+            Double value = visit(first); // calls back to functioncall -> ifelse if recursive
+            if (first instanceof Return || first instanceof Statement) return value;
+            if (readExpression) {
+                it.next();
+                nextNode = null;
+                currentReadValue = 0.0;
+                readExpression = false;
+                if (first instanceof PrintExpr) System.out.println(value);
+            }
+        }
+        // returnvalue depends on this ? y
+        return 0.0;
+    }
+
+    @Override
     public Double visit(PrintExpr node) {
         Node printNode = node.getValue();
         Double value = visit(printNode);
-        if (!readExpression) System.out.println(value);
+        if (!readExpression && !Double.isNaN(value)) System.out.println(value);
         return value;
     }
 
@@ -58,26 +75,60 @@ public class CalculatorEvalAST extends ASTVisitor<Double> {
         String functionName = node.getFunctionName();
         List<Node> parameters = node.getParameters();
         if (parameters.size() != node.getParameters().size()) return Double.NaN;
-        if (scopes.peek().containsKey(functionName)) {
-            Node declaration = scopes.peek().get(functionName);
-            if (declaration instanceof Function) {
-                Function functionDeclaration = (Function) declaration;
-                scopes.push(functionDeclaration.getLocalScope());
-                for (int i = 0; i < parameters.size(); i++) {
-                    String parameter = functionDeclaration.getParameters().get(i);
-                    Number parameterValue = new Number(visit(parameters.get(i)));
-                    functionDeclaration.defineParameters(parameter, parameterValue);
-                }
-                Queue<Node> exprNodeQueue = functionDeclaration.getExprNodeQueue();
-                for (Node expr : exprNodeQueue) {
-                    visit(expr);
-                }
-                Double returnValue = visit(functionDeclaration.getReturnExpression());
-                scopes.pop();
-                return returnValue;
+        Iterator<Map<String, Node>> it = scopes.iterator();
+        while(it.hasNext()) {
+            Map<String, Node> scope = it.next();
+            if (scope.containsKey(functionName)) {
+                Node declaration = scope.get(functionName);
+                if (declaration instanceof Function) {
+                    Function functionDeclaration = (Function) declaration;
+                    scopes.push(functionDeclaration.getLocalScope());
+                    for (int i = 0; i < parameters.size(); i++) {
+                        String parameter = functionDeclaration.getParameters().get(i);
+                        Number parameterValue = new Number(visit(parameters.get(i)));
+                        functionDeclaration.defineParameters(parameter, parameterValue);
+                    }
+                    Double returnValue = visit(functionDeclaration.getExprNodeQueue());
+                    scopes.pop();
+                    return returnValue;
+                }    
             }
         }
         return Double.NaN;
+    }
+
+    @Override
+    public Double visit(Return node) {
+        Node returnExpression = node.getReturnValue();
+        Double returnValue = visit(returnExpression);
+        return returnValue;
+    }
+
+    @Override
+    public Double visit(IfElseStatement node) {
+        Node ifBlockNode = node.getIfBlock();
+        IfBlock ifBlock;
+        if (!(ifBlockNode instanceof IfBlock)) return Double.NaN;
+        else ifBlock = (IfBlock) ifBlockNode;
+        Node condition = ifBlock.getCondition();
+        Double conditionResult = visit(condition);
+        Double returnValue = Double.NaN;
+        if (conditionResult != 0.0 && conditionResult != Double.NaN) {
+            scopes.push(ifBlock.getLocalScopeDefinitions());
+            ExprNodeQueue exprNodeQueue = ifBlock.getExprNodeQueue();
+            returnValue = visit(exprNodeQueue);
+        }
+        else {
+            Node elseBlockNode = node.getElseBlock();
+            ElseBlock elseBlock;
+            if (!(elseBlockNode instanceof ElseBlock)) return Double.NaN;
+            else elseBlock = (ElseBlock) elseBlockNode;
+            scopes.push(elseBlock.getLocalScopeDefinitions());
+            ExprNodeQueue exprNodeQueue = elseBlock.getExprNodeQueue();
+            returnValue = visit(exprNodeQueue);
+        }
+        scopes.pop();
+        return returnValue;
     }
 
     @Override
@@ -85,11 +136,191 @@ public class CalculatorEvalAST extends ASTVisitor<Double> {
         String variableName = node.getDeclarationName();
         Node value = node.getDeclarationValue();
         if (scopes.isEmpty()) scopes.push(new HashMap<String, Node>());
-        Map<String, Node> currentScope = scopes.peek();
-        currentScope.put(variableName, new Number(visit(value)));
-        scopes.pop();
-        scopes.push(currentScope);
-        return Double.NaN;
+        Iterator<Map<String, Node>> check = scopes.descendingIterator();
+        boolean variableExists = false;
+        while (check.hasNext()) {
+            Map<String, Node> scope = check.next();
+            if (scope.containsKey(variableName)) variableExists = true;
+        }
+        if (variableExists) {
+            Iterator<Map<String, Node>> it = scopes.iterator();
+            while (it.hasNext()) {
+                Map<String, Node> scope = it.next();
+                if (scope.containsKey(variableName)) {
+                    scope.put(variableName, new Number(visit(value)));
+                }
+            }
+        }
+        else {
+            Map<String, Node> currentScope = scopes.peek();
+            currentScope.put(variableName, new Number(visit(value)));
+            scopes.pop();
+            scopes.push(currentScope);
+        }
+        return Double.NaN;    
+    }
+
+    @Override
+    public Double visit(PowerRedefinition node) {
+        String variableName = node.getVariableName();
+        Node redefinitionValue = node.getRedefintionValue();
+        Double value = 0.0;
+        if (scopes.isEmpty()) return 0.0;
+        Iterator<Map<String, Node>> it = scopes.iterator();
+        while(it.hasNext()) {
+            Map<String, Node> scope = it.next();
+            if (scope.containsKey(variableName)) {
+                Node localDefinition = scope.get(variableName);
+                if (localDefinition instanceof Number) value = ((Number) localDefinition).getValue();
+                value = Math.pow(value, visit(redefinitionValue));
+                scope.put(variableName, new Number(value));
+            }
+        }
+        return value;
+    }
+
+    @Override
+    public Double visit(MultiplicationRedefinition node) {
+        String variableName = node.getVariableName();
+        Node redefinitionValue = node.getRedefintionValue();
+        Double value = 0.0;
+        if (scopes.isEmpty()) return 0.0;
+        Iterator<Map<String, Node>> it = scopes.iterator();
+        while(it.hasNext()) {
+            Map<String, Node> scope = it.next();
+            if (scope.containsKey(variableName)) {
+                Node localDefinition = scope.get(variableName);
+                if (localDefinition instanceof Number) value = ((Number) localDefinition).getValue();
+                value *= visit(redefinitionValue);
+                scope.put(variableName, new Number(value));
+            }
+        }
+        return value;
+    }
+
+    @Override
+    public Double visit(DivisionRedefinition node) {
+        String variableName = node.getVariableName();
+        Node redefinitionValue = node.getRedefintionValue();
+        Double value = 0.0;
+        if (scopes.isEmpty()) return 0.0;
+        Iterator<Map<String, Node>> it = scopes.iterator();
+        while(it.hasNext()) {
+            Map<String, Node> scope = it.next();
+            if (scope.containsKey(variableName)) {
+                Node localDefinition = scope.get(variableName);
+                if (localDefinition instanceof Number) value = ((Number) localDefinition).getValue();
+                value /= visit(redefinitionValue);
+                scope.put(variableName, new Number(value));
+            }
+        }
+        return value;
+    }
+
+    @Override
+    public Double visit(AdditionRedefinition node) {
+        String variableName = node.getVariableName();
+        Node redefinitionValue = node.getRedefintionValue();
+        Double value = 0.0;
+        if (scopes.isEmpty()) return 0.0;
+        Iterator<Map<String, Node>> it = scopes.iterator();
+        while(it.hasNext()) {
+            Map<String, Node> scope = it.next();
+            if (scope.containsKey(variableName)) {
+                Node localDefinition = scope.get(variableName);
+                if (localDefinition instanceof Number) value = ((Number) localDefinition).getValue();
+                value += visit(redefinitionValue);
+                scope.put(variableName, new Number(value));
+            }
+        }
+        return value;
+    }
+
+    @Override
+    public Double visit(SubtractionRedefinition node) {
+        String variableName = node.getVariableName();
+        Node redefinitionValue = node.getRedefintionValue();
+        Double value = 0.0;
+        if (scopes.isEmpty()) return 0.0;
+        Iterator<Map<String, Node>> it = scopes.iterator();
+        while(it.hasNext()) {
+            Map<String, Node> scope = it.next();
+            if (scope.containsKey(variableName)) {
+                Node localDefinition = scope.get(variableName);
+                if (localDefinition instanceof Number) value = ((Number) localDefinition).getValue();
+                value -= visit(redefinitionValue);
+                scope.put(variableName, new Number(value));
+            }
+        }
+        return value;
+    }
+
+    @Override
+    public Double visit(PreIncrement node) {
+        String variableName = node.getVariableName();
+        Double value = 0.0;
+        if (scopes.isEmpty()) return 0.0;
+        Iterator<Map<String, Node>> it = scopes.iterator();
+        while(it.hasNext()) {
+            Map<String, Node> scope = it.next();
+            if (scope.containsKey(variableName)) {
+                Node localDefinition = scope.get(variableName);
+                if (localDefinition instanceof Number) value = ((Number) localDefinition).getValue();
+                scope.put(variableName, new Number(++value));
+            }
+        }
+        return value;
+    }
+
+    @Override
+    public Double visit(PostIncrement node) {
+        String variableName = node.getVariableName();
+        Double value = 0.0;
+        if (scopes.isEmpty()) return 0.0;
+        Iterator<Map<String, Node>> it = scopes.iterator();
+        while(it.hasNext()) {
+            Map<String, Node> scope = it.next();
+            if (scope.containsKey(variableName)) {
+                Node localDefinition = scope.get(variableName);
+                if (localDefinition instanceof Number) value = ((Number) localDefinition).getValue();
+                scope.put(variableName, new Number(value + 1));
+            }
+        }
+        return value;
+    }
+
+    @Override
+    public Double visit(PreDecrement node) {
+        String variableName = node.getVariableName();
+        Double value = 0.0;
+        if (scopes.isEmpty()) return 0.0;
+        Iterator<Map<String, Node>> it = scopes.iterator();
+        while(it.hasNext()) {
+            Map<String, Node> scope = it.next();
+            if (scope.containsKey(variableName)) {
+                Node localDefinition = scope.get(variableName);
+                if (localDefinition instanceof Number) value = ((Number) localDefinition).getValue();
+                scope.put(variableName, new Number(--value));
+            }
+        }
+        return value;
+    }
+
+    @Override
+    public Double visit(PostDecrement node) {
+        String variableName = node.getVariableName();
+        Double value = 0.0;
+        if (scopes.isEmpty()) return 0.0;
+        Iterator<Map<String, Node>> it = scopes.iterator();
+        while(it.hasNext()) {
+            Map<String, Node> scope = it.next();
+            if (scope.containsKey(variableName)) {
+                Node localDefinition = scope.get(variableName);
+                if (localDefinition instanceof Number) value = ((Number) localDefinition).getValue();
+                scope.put(variableName, new Number(value - 1));
+            }
+        }
+        return value;
     }
 
     @Override
@@ -190,7 +421,7 @@ public class CalculatorEvalAST extends ASTVisitor<Double> {
 
     @Override
     public Double visit(Variable node) {
-        if (scopes.isEmpty()) return Double.NaN;
+        if (scopes.isEmpty()) return 0.0;
         String variableName = node.getValue();
         Iterator<Map<String, Node>> it = scopes.iterator();
         while(it.hasNext()) {

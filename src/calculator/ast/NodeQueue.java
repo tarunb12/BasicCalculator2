@@ -28,3 +28,9 @@ class TextNodeQueue extends NodeQueue {
         super(nodeQueue);
     }
 }
+
+class ExprNodeQueue extends NodeQueue {
+    public ExprNodeQueue(Queue<Node> nodeQueue) {
+        super(nodeQueue);
+    }
+}

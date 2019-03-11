@@ -6,14 +6,30 @@ prog: start* EOF ;
 
 start
     : function                          # StartFunc
-    | expr                              # PrintExpr
+    | statement                         # StartStatement
     | varDef                            # Assign
+    | varDefExpr                        # AssignExpr
+    | expr                              # PrintExpr
     | printText                         # PrintExpressionText
     | COMMENT                           # Comm
     | NL                                # NewLine
     ;
 
-varDef  : VAR EQ expr                   # VariableDefinition ;
+varDef  
+    : VAR EQ expr                       # VariableDefinition
+    ;
+
+varDefExpr
+    : VAR POW EQ expr                   # PowEqual
+    | VAR MULT EQ expr                  # MultEqual
+    | VAR DIV EQ expr                   # DivEqual
+    | VAR SUBT EQ expr                  # SubtEqual
+    | VAR ADD EQ expr                   # AddEqual
+    | ADD ADD VAR                       # PreIncrement
+    | SUBT SUBT VAR                     # PreDecrement
+    | VAR ADD ADD                       # PostIncrement
+    | VAR SUBT SUBT                     # PostDecrement
+    ;
 
 COMMENT : LCOM (.)*? RCOM -> channel(HIDDEN) ;
 
@@ -26,27 +42,69 @@ text
     | expr                              # ExprStatement
     ;
 
+function:
+    functionDef functionName LPAR (parameter (',' parameter)*)* RPAR NL*
+    ( LBRAC start* returnExpr? NL* RBRAC
+    | start
+    | returnExpr
+    )                                   # Func
+    ;
+
+functionName        : VAR ;
+parameter           : VAR ;
+
+functionCall 
+    : functionName LPAR (expr (',' expr)*)* RPAR # FuncCall
+    ;
+// return : check if scope length > 1
+statement
+    : ifStatement
+    | forLoop
+    | whileLoop
+    ;
+
+ifStatement
+    : ifBranch elseBranch?              # IfDefStatement
+    ;
+
+ifBranch
+    : ifDef LPAR expr RPAR NL* (
+          LBRAC start* returnExpr? NL* RBRAC
+        | start
+        | returnExpr
+    );
+
+elseBranch
+    : elseDef NL* (
+          LBRAC start* returnExpr? NL* RBRAC
+        | start
+        | returnExpr
+    );
+
+whileLoop
+    : whileDef LPAR expr RPAR
+        ( LBRAC start* RBRAC
+        | start
+        )                               # WhileLoopStatement
+    ;
+
+forLoop
+    : forDef LPAR varDef SEMI expr SEMI varDefExpr RPAR (
+          LBRAC start* RBRAC
+        | start
+    )                                   # ForLoopStatement
+    ;
+
+returnExpr
+    : functionRet expr
+    ;
+
 functionExpr
     : exp LPAR expr RPAR                # Exponential
     | log LPAR expr RPAR                # Logarithm
     | sqrt LPAR expr RPAR               # SquareRoot
     | sin LPAR expr RPAR                # Sine
     | cos LPAR expr RPAR                # Cosine
-    ;
-
-function:
-    functionDef functionName LPAR (parameter (',' parameter)*)* RPAR NL* LBRAC
-        start*
-        (functionRet expr)? NL*
-    RBRAC                               # Func
-    ;
-
-functionRetExpr     : expr ;
-functionName        : VAR ;
-parameter           : VAR ;
-
-functionCall 
-    : functionName LPAR (expr (',' expr)*)* RPAR # FuncCall
     ;
 
 expr
@@ -64,13 +122,13 @@ expr
     | NUM                               # Number
     | VAR                               # Variable
     | rd LPAR RPAR                      # Read
-    | LPAR expr RPAR                    # Parenthesis
     | expr GT expr                      # GreaterThan
     | expr GTE expr                     # GreaterThanOrEqualTo
     | expr LT expr                      # LessThan
     | expr LTE expr                     # LessThanOrEqualTo
     | expr LEQ expr                     # LogicalEqual
     | expr LNEQ expr                    # LogicalNotEqual
+    | LPAR expr RPAR                    # Parenthesis
     ;
 
 NUM
@@ -113,9 +171,15 @@ print: 'print' ;
 QUOTE: '"' ;
 txt  : ~(NL)*? ;
 
+ifDef       : 'if' ;
+then        : 'then' ;
+elseDef     : 'else';
+whileDef    : 'while' ;
+forDef      : 'for' ;
 functionDef : 'define' ;
 functionRet : 'return' ;
 
+SEMI: ';' ;
 LCOM: '/*' ;
 RCOM: '*/' ;
 LBRAC: '{' ;

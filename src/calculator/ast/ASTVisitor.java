@@ -2,10 +2,22 @@ package calculator.ast;
 
 public abstract class ASTVisitor<T> {
     public abstract T visit(StartNodeQueue node);
+    public abstract T visit(ExprNodeQueue node);
     public abstract T visit(PrintExpr node);
     public abstract T visit(Function node);
     public abstract T visit(FunctionCall node);
+    public abstract T visit(Return node);
+    public abstract T visit(IfElseStatement node);
     public abstract T visit(VariableDefinition node);
+    public abstract T visit(PowerRedefinition node);
+    public abstract T visit(MultiplicationRedefinition node);
+    public abstract T visit(DivisionRedefinition node);
+    public abstract T visit(AdditionRedefinition node);
+    public abstract T visit(SubtractionRedefinition node);
+    public abstract T visit(PreIncrement node);
+    public abstract T visit(PostIncrement node);
+    public abstract T visit(PreDecrement node);
+    public abstract T visit(PostDecrement node);
     public abstract T visit(UnaryMinusExpression node);
     public abstract T visit(PowerExpression node);
     public abstract T visit(ExponentialFunctionExpression node);
@@ -36,10 +48,22 @@ public abstract class ASTVisitor<T> {
     // Cast all nodes of type Node, too general of a class to do anything with
     public T visit(Node node) {
         if (node instanceof StartNodeQueue) return visit((StartNodeQueue) node);
+        else if (node instanceof ExprNodeQueue) return visit((ExprNodeQueue) node);
         else if (node instanceof PrintExpr) return visit((PrintExpr) node);
         else if (node instanceof Function) return visit((Function) node);
         else if (node instanceof FunctionCall) return visit((FunctionCall) node);
+        else if (node instanceof Return) return visit((Return) node);
+        else if (node instanceof IfElseStatement) return visit((IfElseStatement) node);
         else if (node instanceof VariableDefinition) return visit((VariableDefinition) node);
+        else if (node instanceof PowerRedefinition) return visit((PowerRedefinition) node);
+        else if (node instanceof MultiplicationRedefinition) return visit((MultiplicationRedefinition) node);
+        else if (node instanceof DivisionRedefinition) return visit((DivisionRedefinition) node);
+        else if (node instanceof AdditionRedefinition) return visit((AdditionRedefinition) node);
+        else if (node instanceof SubtractionRedefinition) return visit((SubtractionRedefinition) node);
+        else if (node instanceof PreIncrement) return visit((PreIncrement) node);
+        else if (node instanceof PostIncrement) return visit((PostIncrement) node);
+        else if (node instanceof PreDecrement) return visit((PreDecrement) node);
+        else if (node instanceof PostDecrement) return visit((PostDecrement) node);
         else if (node instanceof UnaryMinusExpression) return visit((UnaryMinusExpression) node);
         else if (node instanceof PowerExpression) return visit((PowerExpression) node);
         else if (node instanceof ExponentialFunctionExpression) return visit((ExponentialFunctionExpression) node);

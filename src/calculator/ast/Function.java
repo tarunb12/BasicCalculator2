@@ -8,15 +8,13 @@ public class Function extends Node {
     private final String functionName;
     private final List<String> parameters;
     private Map<String, Node> localScopeDefinitions;
-    private final NodeQueue exprNodeQueue;
-    private final Node returnExpression;
+    private final ExprNodeQueue exprNodeQueue;
 
-    public Function(String functionName, List<String> parameters, Map<String, Node> localScopeDefinitions, NodeQueue exprNodeQueue, Node returnExpression) {
+    public Function(String functionName, List<String> parameters, Map<String, Node> localScopeDefinitions, ExprNodeQueue exprNodeQueue) {
         this.functionName = functionName;
         this.parameters = parameters;
         this.localScopeDefinitions = localScopeDefinitions;
         this.exprNodeQueue = exprNodeQueue;
-        this.returnExpression = returnExpression;
     }
 
     public final String getFunctionName() { return this.functionName; }
@@ -24,8 +22,7 @@ public class Function extends Node {
     public final List<String> getParameters() { return this.parameters; }
     public final void defineParameters(String parameter, Node parameterValue) { localScopeDefinitions.put(parameter, parameterValue); }
     public final Map<String, Node> getLocalScope() { return this.localScopeDefinitions; }
-    public final Queue<Node> getExprNodeQueue() { return exprNodeQueue.getQueue(); }
-    public final Node getReturnExpression() { return this.returnExpression; }
+    public final ExprNodeQueue getExprNodeQueue() { return this.exprNodeQueue; }
 }
 
 class FunctionCall extends Expression {
@@ -40,4 +37,14 @@ class FunctionCall extends Expression {
     public final String getFunctionName() { return this.functionName; }
     public final int numberOfParameters() { return this.parameters.size(); }
     public final List<Node> getParameters() { return this.parameters; }
+}
+
+class Return extends Expression {
+    private final Node returnValue;
+
+    public Return(Node returnValue) {
+        this.returnValue = returnValue;
+    }
+
+    public final Node getReturnValue() { return this.returnValue; }
 }

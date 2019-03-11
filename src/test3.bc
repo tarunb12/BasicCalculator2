@@ -1,8 +1,37 @@
-define test(v, q) {
-    v + q
-    print "hello", "what"
-    return v + 2 * q
+/*
+define test(p, q) {
+    if (p < 10) return p - q
+    else return p + q
 }
 x = 5
 test(x, 2 * x)
-test(2 * x, x)
+test(3 * x, x)
+*/
+
+
+define factorial(n) {
+    if (n <= 1) return 1
+    else return n * factorial(n-1)
+}
+factorial(5)
+
+
+/*
+i = 10
+i--
+i
+*/
+
+/*
+define fibonacci(n) {
+    print n, "num"
+    if (n == 0) return 0
+    else if (n == 1) return 1
+    else return fibonacci(n-1) + fibonacci(n-2)
+}
+fibonacci(3)
+*/
+
+/*
+if (6) return 5
+*/

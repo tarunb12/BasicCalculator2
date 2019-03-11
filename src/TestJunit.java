@@ -37,7 +37,7 @@ public class TestJunit {
    public static final Tests tests = new Tests();
 
    public void antlr(String exp) throws Exception {
-        // create a CharStream that reads from standard input
+        // create a CharStream that reads from input string
         CharStream input = CharStreams.fromString(exp);
         // create a lexer that feeds off of input CharStream
         CalculatorLexer lexer = new CalculatorLexer(input);
@@ -72,7 +72,7 @@ public class TestJunit {
       try {
          setOutStream();
          antlr(testExp);
-         testExpRes = outContent.toString().replace("\n", "").replace("\r", "");
+         testExpRes = outContent.toString().replace("\r", "").replace("\n", "");
          resetOutStream();
          Assert.assertEquals(testRes, testExpRes);
          System.out.println(LTAB + ANSI_GREEN + "\u2713 " + ANSI_RESET + ANSI_LOW + testExp.trim().replace("\n", "  ") + " = " + testRes + ANSI_RESET);
@@ -85,17 +85,31 @@ public class TestJunit {
       }
    }
 
+   public void testExpressions(Map<String, String> testResults) {
+      for (Map.Entry<String, String> test : testResults.entrySet()) {
+         antlrTest(test.getKey(), test.getValue());
+      }
+      System.out.println("");
+   }
+
+   public void testCommands(Map<ArrayList<String>, String> testResults) {
+      for (Map.Entry<ArrayList<String>, String> test : testResults.entrySet()) {
+         String command = "";
+         for (String cmd : test.getKey()) {
+            command += cmd + "\n";
+         }
+         antlrTest(command, test.getValue());
+      }
+      System.out.println("");
+   }
+
    @Test
    public void testMathOps() {
       System.out.println(STAB + "Mathematical Tests:");
 
       tests.setAddSubMultDivPowTests();
       Map<String, String> testResults = tests.mathTests;
-
-      for (Map.Entry<String, String> test : testResults.entrySet()) {
-         antlrTest(test.getKey(), test.getValue());
-      }
-      System.out.println("");
+      testExpressions(testResults);
    }
 
    @Test
@@ -104,24 +118,16 @@ public class TestJunit {
 
       tests.setBooleanTests();
       Map<String, String> testResults = tests.booleanTests;
-
-      for (Map.Entry<String, String> test : testResults.entrySet()) {
-         antlrTest(test.getKey(), test.getValue());
-      }
-      System.out.println("");
+      testExpressions(testResults);
    }
 
    @Test
-   public void testFunctionOps() {
-      System.out.println(STAB + "Function Tests:");
+   public void testFunctionExpressions() {
+      System.out.println(STAB + "Function Expression Tests:");
 
-      tests.setFunctionTests();
-      Map<String, String> testResults = tests.functionTests;
-      
-      for (Map.Entry<String, String> test : testResults.entrySet()) {
-         antlrTest(test.getKey(), test.getValue());
-      }
-      System.out.println("");
+      tests.setFunctionExpressionTests();
+      Map<String, String> testResults = tests.functionExpressionTests;
+      testExpressions(testResults);
    }
 
    @Test
@@ -130,15 +136,7 @@ public class TestJunit {
 
       tests.setVarTests();
       Map<ArrayList<String>, String> testResults = tests.varTests;
-
-      for (Map.Entry<ArrayList<String>, String> test : testResults.entrySet()) {
-         String command = "";
-         for (String cmd : test.getKey()) {
-            command += cmd + "\n";
-         }
-         antlrTest(command, test.getValue());
-      }
-      System.out.println("");
+      testCommands(testResults);
    }
 
    @Test
@@ -147,15 +145,7 @@ public class TestJunit {
 
       tests.setCommentTests();
       Map<ArrayList<String>, String> testResults = tests.commentTests;
-
-      for (Map.Entry<ArrayList<String>, String> test : testResults.entrySet()) {
-         String command = "";
-         for (String cmd : test.getKey()) {
-            command += cmd + "\n";
-         }
-         antlrTest(command, test.getValue());
-      }
-      System.out.println("");
+      testCommands(testResults);
    }
 
    @Test
@@ -164,19 +154,36 @@ public class TestJunit {
 
       tests.setPrintTests();
       Map<String, String> testResults = tests.printTests;
-      for (Map.Entry<String, String> test : testResults.entrySet()) {
-         antlrTest(test.getKey(), test.getValue());
-      }
-      System.out.println("");
+      testExpressions(testResults);
+   }
+
+   @Test
+   public void testIfElse() {
+      System.out.println(STAB + "If/Else Tests:");
+
+      tests.setIfElseTests();
+      Map<ArrayList<String>, String> testResults = tests.ifElseTests;
+      testCommands(testResults);
+   }
+
+   @Test
+   public void testFunctions() {
+      System.out.println(STAB + "Function Tests:");
+
+      tests.setFunctionTests();
+      Map<ArrayList<String>, String> testResults = tests.functionTests;
+      testCommands(testResults);
    }
 
    public static class Tests {
       public Map<String, String> mathTests;
       public Map<String, String> booleanTests;
-      public Map<String, String> functionTests;
+      public Map<String, String> functionExpressionTests;
       public Map<ArrayList<String>, String> varTests;
       public Map<ArrayList<String>, String> commentTests;
       public Map<String, String> printTests;
+      public Map<ArrayList<String>, String> ifElseTests;
+      public Map<ArrayList<String>, String> functionTests;
 
       public void setAddSubMultDivPowTests() {
          mathTests = new LinkedHashMap<String, String>();
@@ -205,19 +212,24 @@ public class TestJunit {
          booleanTests.put("2||4", Double.toString(or.compute(2,4)));
          booleanTests.put("!2||!4", Double.toString(or.compute(not.compute(2),not.compute(4))));
          booleanTests.put("!2==!4", Double.toString(eq.compute(not.compute(2), not.compute(4))));
+         booleanTests.put("!8.3<4.5", Double.toString(lt.compute(not.compute(8.3), 4.5)));
+         booleanTests.put("6>5", Double.toString(gt.compute(6, 5)));
+         booleanTests.put("3>=3", Double.toString(gte.compute(3, 3)));
+         booleanTests.put("5<=6", Double.toString(lte.compute(5, 6)));
+         booleanTests.put("2!=!2", Double.toString(neq.compute(2, not.compute(2))));
          booleanTests.put("!3&&4.24||2&&!0", Double.toString(or.compute(and.compute(not.compute(3),4.24),and.compute(2,not.compute(0)))));
          booleanTests.put("!!2&&(4-2^2+2^0)", Double.toString(and.compute(not.compute(not.compute(2)),4-Math.pow(2,2)+Math.pow(2,0))));
          booleanTests.put("e(3.14159&&2.71828)", Double.toString(Math.exp(and.compute(3.14159, 2.71828))));
       }
 
-      public void setFunctionTests() {
-         functionTests = new LinkedHashMap<String, String>();
-         functionTests.put("(s(3.141592653589))^2+(c(3.141592653589))^2", Double.toString(Math.pow(Math.sin(3.141592653589),2)+Math.pow(Math.cos(3.141592653589),2)));
-         functionTests.put("s(3.141592653589/2)/c(3.141592653589/2)", Double.toString(Math.sin(3.141592653589/2)/Math.cos(3.141592653589/2)));
-         functionTests.put("l(e(read()+1))/l(e(read()))\n1", Double.toString(Math.log10(Math.exp(1+1))/Math.log10(Math.exp(1))));
-         functionTests.put("sqrt(2)^(sqrt(2)^(sqrt(2)))", Double.toString(Math.pow(Math.sqrt(2),Math.pow(Math.sqrt(2),Math.sqrt(2)))));
-         functionTests.put("read()*8+7^read()\n2", Double.toString(2*8+Math.pow(7, 2)));
-         functionTests.put("l(e(e(1)))/l(e(1))", Double.toString(Math.log10(Math.exp(Math.exp(1)))/Math.log10(Math.exp(1))));
+      public void setFunctionExpressionTests() {
+         functionExpressionTests = new LinkedHashMap<String, String>();
+         functionExpressionTests.put("(s(3.141592653589))^2+(c(3.141592653589))^2", Double.toString(Math.pow(Math.sin(3.141592653589),2)+Math.pow(Math.cos(3.141592653589),2)));
+         functionExpressionTests.put("s(3.141592653589/2)/c(3.141592653589/2)", Double.toString(Math.sin(3.141592653589/2)/Math.cos(3.141592653589/2)));
+         functionExpressionTests.put("l(e(read()+1))/l(e(read()))\n1", Double.toString(Math.log10(Math.exp(1+1))/Math.log10(Math.exp(1))));
+         functionExpressionTests.put("sqrt(2)^(sqrt(2)^(sqrt(2)))", Double.toString(Math.pow(Math.sqrt(2),Math.pow(Math.sqrt(2),Math.sqrt(2)))));
+         functionExpressionTests.put("read()*8+7^read()\n2", Double.toString(2*8+Math.pow(7, 2)));
+         functionExpressionTests.put("l(e(e(1)))/l(e(1))", Double.toString(Math.log10(Math.exp(Math.exp(1)))/Math.log10(Math.exp(1))));
       }
 
       public void setVarTests() {
@@ -255,7 +267,7 @@ public class TestJunit {
          final String[] results = {
             Double.toString(5*6),
             Double.toString(2/Math.sin(2)),
-            Double.toString(Double.NaN),
+            Double.toString(0.0),
             Double.toString(Math.sqrt(Math.sqrt((Math.exp(8)-1)/(Math.exp(4)+1)+1))),
          };
          assert commands.length == results.length : "Invalid correspondence of commands to results (Comment Tests)";
@@ -273,6 +285,52 @@ public class TestJunit {
          printTests.put("print 2*8, 4+7^2, e(1)+1", Double.toString(2.0*8)+", "+Double.toString(4.0+Math.pow(7, 2))+", "+Double.toString(Math.exp(1)+1));
          printTests.put("print \"hello\", 4+l(100), e(e(2))", "hello, "+Double.toString(4+Math.log10(100))+", "+Double.toString(Math.exp(Math.exp(2))));
          printTests.put("print \"test\", \"4^4\", 4^4, e(1)", "test, 4^4, "+Double.toString(Math.pow(4, 4))+", "+Double.toString(Math.exp(1)));
+      }
+
+      public void setIfElseTests() {
+         ifElseTests = new LinkedHashMap<ArrayList<String>, String>();
+         final String[][] commands = {
+            {"x = 84", "if (x < 0) print \"negative\"", "else if (x == 0) print \"zero\"", "else print \"positive\""},
+            {"x = -6", "if (x < 0) print \"negative\"", "else if (x == 0) print \"zero\"", "else print \"positive\""},
+            {"x = 0", "if (x < 0) print \"negative\"", "else if (x == 0) print \"zero\"", "else print \"positive\""},
+            {"if (e(4) > e(5)) {", "e(4) - e(5)", "}", "else {", "e(5) - e(4)", "}"},
+         };
+         final String[] results = {
+            "positive",
+            "negative",
+            "zero",
+            Double.toString(Math.exp(5)-Math.exp(4)),
+         };
+         assert commands.length == results.length : "Invalid correspondence of commands to results (Function Tests)";
+         for (int i = 0; i < commands.length; i++) {
+            ArrayList<String> cmds = new ArrayList<String>();
+            for (int j = 0; j < commands[i].length; j++) {
+               cmds.add(commands[i][j]);
+            }
+            ifElseTests.put(cmds, results[i]);
+         }
+      }
+
+      public void setFunctionTests() {
+         functionTests = new LinkedHashMap<ArrayList<String>, String>();
+         final String[][] commands = {
+            {"define factorial(n) {", "if (n <= 1) return 1", "else return n * factorial(n-1)", "}", "factorial(5)"},
+            {"define test(p, q) {", "if (p < 10) return p - q", "else return p + q", "}", "x = 5", "test(x, 2 * x)"},
+            {"define fibonacci(n) {", "if (n <= 1) return n", "else return fibonacci(n-1) + fibonacci(n-2)", "}", "fibonacci(8)"},
+         };
+         final String[] results = {
+            Double.toString(5*4*3*2*1),
+            Double.toString(5-10),
+            Double.toString(13),
+         };
+         assert commands.length == results.length : "Invalid correspondence of commands to results (Function Tests)";
+         for (int i = 0; i < commands.length; i++) {
+            ArrayList<String> cmds = new ArrayList<String>();
+            for (int j = 0; j < commands[i].length; j++) {
+               cmds.add(commands[i][j]);
+            }
+            functionTests.put(cmds, results[i]);
+         }
       }
 
       @FunctionalInterface
