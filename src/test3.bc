@@ -1,4 +1,3 @@
-/*
 define test(p, q) {
     if (p < 10) return p - q
     else return p + q
@@ -6,33 +5,20 @@ define test(p, q) {
 x = 5
 test(x, 2 * x)
 test(3 * x, x)
-*/
 
-/*
+
 define factorial(n) {
     if (n <= 1) return 1
     else return n * factorial(n-1)
 }
 factorial(5)
-*/
 
-/*
+
 i = 10
 i--
 i
-*/
 
 
-define fibonacci(n) {
-    print n, "num"
-    if (n == 0) return n
-    else if (n == 1) return n
-    else return fibonacci(n-1) + fibonacci(n-2)
-}
-fibonacci(4)
-
-
-/*
 i = 10
 n = 0
 while (i > 0) {
@@ -40,9 +26,8 @@ while (i > 0) {
     n += i
 }
 n
-*/
 
-/*
+
 n = e(1)
 i = 8
 while ((i - n) > 3) {
@@ -50,15 +35,13 @@ while ((i - n) > 3) {
     i -= 2
 }
 n
-*/
 
-/*
+
 i = 8
 i++
 i
-*/
 
-/*
+
 n = 1
 for (i = 1; i < 3; i++) {
     for (j = 1; j < 3; j++) {
@@ -66,8 +49,6 @@ for (i = 1; i < 3; i++) {
     }
 }
 n
-*/
 
-/*
+
 if (6) return 5
-*/
