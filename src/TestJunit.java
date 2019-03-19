@@ -318,11 +318,13 @@ public class TestJunit {
             {"i = 10", "n = 0", "while (i > 0)", "{", "n += i", "i--", "}", "n"},
             {"n = e(1)", "i = 8", "while ((i - n) > 3)", "{", "n++", "i -= 2", "}", "n"},
             {"j = 1", "for (i = 1; i < 6; i++)", "{", "j *= i", "}", "j"},
+            {"n = 1", "for (i = 1; i < 3; i++)", "{", "for (j = 1; j < 3; j++)", "{", "n *= i + j", "}", "}", "n"},
          };
          final String[] results = {
             Double.toString(10+9+8+7+6+5+4+3+2+1.0),
             Double.toString(Math.exp(1)+1),
             Double.toString(1*2*3*4*5),
+            Double.toString(1*(1+1)*(1+2)*(2+1)*(2+2)),
          };
          assert commands.length == results.length : "Invalid correspondence of commands to results (Loop Tests)";
          for (int i = 0; i < commands.length; i++) {

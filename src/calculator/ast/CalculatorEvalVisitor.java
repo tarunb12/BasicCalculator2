@@ -115,6 +115,7 @@ public class CalculatorEvalVisitor extends CalculatorBaseVisitor<Node> {
         for (StartContext context : startContexts) {
             exprNodeQueue.push(visit(context));
         }
+        int i = 1;
         Map<String, Node> localScopeDefinitions = new HashMap<String, Node>();
         return new ForLoop(variableDefinition, condition, redefinition, exprNodeQueue, localScopeDefinitions);
     }

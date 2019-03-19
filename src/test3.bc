@@ -22,14 +22,15 @@ i--
 i
 */
 
-/*
+
 define fibonacci(n) {
     print n, "num"
-    if (n <= 1) return n
-    else return (fibonacci(n-1) + fibonacci(n-2))
+    if (n == 0) return n
+    else if (n == 1) return n
+    else return fibonacci(n-1) + fibonacci(n-2)
 }
 fibonacci(4)
-*/
+
 
 /*
 i = 10
@@ -58,11 +59,13 @@ i
 */
 
 /*
-j = 1
-for (i = 1; i < 6; i++) {
-    j *= i
+n = 1
+for (i = 1; i < 3; i++) {
+    for (j = 1; j < 3; j++) {
+        n *= i + j
+    }
 }
-j
+n
 */
 
 /*

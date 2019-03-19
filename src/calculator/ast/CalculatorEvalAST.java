@@ -89,7 +89,6 @@ public class CalculatorEvalAST extends ASTVisitor<Double> {
                         functionDeclaration.defineParameters(parameter, parameterValue);
                     }
                     Double returnValue = visit(functionDeclaration.getExprNodeQueue());
-                    scopes.pop();
                     return returnValue;
                 }    
             }
