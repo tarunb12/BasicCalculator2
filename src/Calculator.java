@@ -42,10 +42,6 @@ public class Calculator {
             // visit and evaluate AST
             eval.visit(ast);
 
-            // Implement printAST ? idk too much work
-
-        } catch (FileNotFoundException e) {
-            // Interactive Mode / Interpreter ? nah
-        }
+        } catch (FileNotFoundException e) { }
     }
 }
