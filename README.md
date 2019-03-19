@@ -39,10 +39,12 @@ else {
     ...
 }
 
+
 /* For Loop */
 for (variableDefinition; condition; variableRedefinition) {
     ...
 }
+
 
 /* While Loop */
 while (condition) {
