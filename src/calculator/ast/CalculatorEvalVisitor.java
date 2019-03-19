@@ -106,6 +106,32 @@ public class CalculatorEvalVisitor extends CalculatorBaseVisitor<Node> {
     }
 
     @Override
+    public Node visitForLoopStatement(ForLoopStatementContext ctx) {
+        Node variableDefinition = visit(ctx.varDef());
+        Node condition = visit(ctx.expr());
+        Node redefinition = visit(ctx.varDefExpr());
+        ExprNodeQueue exprNodeQueue = new ExprNodeQueue(new LinkedList<Node>());
+        List<StartContext> startContexts = ctx.start();
+        for (StartContext context : startContexts) {
+            exprNodeQueue.push(visit(context));
+        }
+        Map<String, Node> localScopeDefinitions = new HashMap<String, Node>();
+        return new ForLoop(variableDefinition, condition, redefinition, exprNodeQueue, localScopeDefinitions);
+    }
+
+    @Override
+    public Node visitWhileLoopStatement(WhileLoopStatementContext ctx) {
+        Node condition = visit(ctx.expr());
+        ExprNodeQueue exprNodeQueue = new ExprNodeQueue(new LinkedList<Node>());
+        List<StartContext> startContexts = ctx.start();
+        for (StartContext context : startContexts) {
+            exprNodeQueue.push(visit(context));
+        }
+        Map<String, Node> localScopeDefinitions = new HashMap<String, Node>();
+        return new WhileLoop(condition, exprNodeQueue, localScopeDefinitions);
+    }
+
+    @Override
     public Node visitVariableDefinition(VariableDefinitionContext ctx) {
         String variableName = ctx.VAR().getText();
         Node value = visit(ctx.expr());

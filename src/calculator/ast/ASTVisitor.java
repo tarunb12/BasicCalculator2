@@ -8,6 +8,8 @@ public abstract class ASTVisitor<T> {
     public abstract T visit(FunctionCall node);
     public abstract T visit(Return node);
     public abstract T visit(IfElseStatement node);
+    public abstract T visit(ForLoop node);
+    public abstract T visit(WhileLoop node);
     public abstract T visit(VariableDefinition node);
     public abstract T visit(PowerRedefinition node);
     public abstract T visit(MultiplicationRedefinition node);
@@ -54,6 +56,8 @@ public abstract class ASTVisitor<T> {
         else if (node instanceof FunctionCall) return visit((FunctionCall) node);
         else if (node instanceof Return) return visit((Return) node);
         else if (node instanceof IfElseStatement) return visit((IfElseStatement) node);
+        else if (node instanceof ForLoop) return visit((ForLoop) node);
+        else if (node instanceof WhileLoop) return visit((WhileLoop) node);
         else if (node instanceof VariableDefinition) return visit((VariableDefinition) node);
         else if (node instanceof PowerRedefinition) return visit((PowerRedefinition) node);
         else if (node instanceof MultiplicationRedefinition) return visit((MultiplicationRedefinition) node);

@@ -17,7 +17,7 @@ class Variable extends Atom<String> {
 }
 
 class Number extends Atom<Double> {
-    public Number(double value) {
+    public Number(Double value) {
         super(value);
     }
 }

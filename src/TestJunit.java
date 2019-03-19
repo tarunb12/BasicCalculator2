@@ -106,7 +106,6 @@ public class TestJunit {
    @Test
    public void testMathOps() {
       System.out.println(STAB + "Mathematical Tests:");
-
       tests.setAddSubMultDivPowTests();
       Map<String, String> testResults = tests.mathTests;
       testExpressions(testResults);
@@ -115,7 +114,6 @@ public class TestJunit {
    @Test
    public void testBoolOps() {
       System.out.println(STAB + "Boolean Tests:");
-
       tests.setBooleanTests();
       Map<String, String> testResults = tests.booleanTests;
       testExpressions(testResults);
@@ -124,7 +122,6 @@ public class TestJunit {
    @Test
    public void testFunctionExpressions() {
       System.out.println(STAB + "Function Expression Tests:");
-
       tests.setFunctionExpressionTests();
       Map<String, String> testResults = tests.functionExpressionTests;
       testExpressions(testResults);
@@ -133,7 +130,6 @@ public class TestJunit {
    @Test
    public void testVarDefs() {
       System.out.println(STAB + "Variable Tests:");
-
       tests.setVarTests();
       Map<ArrayList<String>, String> testResults = tests.varTests;
       testCommands(testResults);
@@ -142,7 +138,6 @@ public class TestJunit {
    @Test
    public void testComments() {
       System.out.println(STAB + "Comment Tests:");
-
       tests.setCommentTests();
       Map<ArrayList<String>, String> testResults = tests.commentTests;
       testCommands(testResults);
@@ -151,7 +146,6 @@ public class TestJunit {
    @Test
    public void testPrint() {
       System.out.println(STAB + "Print Tests:");
-
       tests.setPrintTests();
       Map<String, String> testResults = tests.printTests;
       testExpressions(testResults);
@@ -160,16 +154,22 @@ public class TestJunit {
    @Test
    public void testIfElse() {
       System.out.println(STAB + "If/Else Tests:");
-
       tests.setIfElseTests();
       Map<ArrayList<String>, String> testResults = tests.ifElseTests;
       testCommands(testResults);
    }
 
    @Test
+   public void testLoops() {
+      System.out.println(STAB + "Loop Tests:");
+      tests.setLoopTests();
+      Map<ArrayList<String>, String> testResults = tests.loopTests;
+      testCommands(testResults);
+   }
+
+   @Test
    public void testFunctions() {
       System.out.println(STAB + "Function Tests:");
-
       tests.setFunctionTests();
       Map<ArrayList<String>, String> testResults = tests.functionTests;
       testCommands(testResults);
@@ -183,6 +183,7 @@ public class TestJunit {
       public Map<ArrayList<String>, String> commentTests;
       public Map<String, String> printTests;
       public Map<ArrayList<String>, String> ifElseTests;
+      public Map<ArrayList<String>, String> loopTests;
       public Map<ArrayList<String>, String> functionTests;
 
       public void setAddSubMultDivPowTests() {
@@ -308,6 +309,28 @@ public class TestJunit {
                cmds.add(commands[i][j]);
             }
             ifElseTests.put(cmds, results[i]);
+         }
+      }
+
+      public void setLoopTests() {
+         loopTests = new LinkedHashMap<ArrayList<String>, String>();
+         final String[][] commands = {
+            {"i = 10", "n = 0", "while (i > 0)", "{", "n += i", "i--", "}", "n"},
+            {"n = e(1)", "i = 8", "while ((i - n) > 3)", "{", "n++", "i -= 2", "}", "n"},
+            {"j = 1", "for (i = 1; i < 6; i++)", "{", "j *= i", "}", "j"},
+         };
+         final String[] results = {
+            Double.toString(10+9+8+7+6+5+4+3+2+1.0),
+            Double.toString(Math.exp(1)+1),
+            Double.toString(1*2*3*4*5),
+         };
+         assert commands.length == results.length : "Invalid correspondence of commands to results (Loop Tests)";
+         for (int i = 0; i < commands.length; i++) {
+            ArrayList<String> cmds = new ArrayList<String>();
+            for (int j = 0; j < commands[i].length; j++) {
+               cmds.add(commands[i][j]);
+            }
+            loopTests.put(cmds, results[i]);
          }
       }
 

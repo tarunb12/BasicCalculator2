@@ -132,6 +132,33 @@ public class CalculatorEvalAST extends ASTVisitor<Double> {
     }
 
     @Override
+    public Double visit(ForLoop node) {
+        scopes.push(node.getLocalScopeDefinitions());
+        Node condition = node.getCondition();
+        Node varDef = node.getVariableDefinition();
+        Node redef = node.getRedefinition();
+        ExprNodeQueue exprNodeQueue = node.getExprNodeQueue();
+        visit(varDef);
+        while (visit(condition) != 0.0) {
+            visit(exprNodeQueue);
+            visit(redef);
+        }
+        scopes.pop();
+        return Double.NaN;
+    }
+
+    @Override
+    public Double visit(WhileLoop node) {
+        scopes.push(node.getLocalScopeDefinitions());
+        Node condition = node.getCondition();
+        while (visit(condition) != 0.0) {
+            visit(node.getExprNodeQueue());
+        }
+        scopes.pop();
+        return Double.NaN;
+    }
+
+    @Override
     public Double visit(VariableDefinition node) {
         String variableName = node.getDeclarationName();
         Node value = node.getDeclarationValue();
@@ -266,10 +293,10 @@ public class CalculatorEvalAST extends ASTVisitor<Double> {
             if (scope.containsKey(variableName)) {
                 Node localDefinition = scope.get(variableName);
                 if (localDefinition instanceof Number) value = ((Number) localDefinition).getValue();
-                scope.put(variableName, new Number(++value));
+                scope.put(variableName, new Number(value + 1));
             }
         }
-        return value;
+        return value + 1;
     }
 
     @Override
@@ -300,10 +327,10 @@ public class CalculatorEvalAST extends ASTVisitor<Double> {
             if (scope.containsKey(variableName)) {
                 Node localDefinition = scope.get(variableName);
                 if (localDefinition instanceof Number) value = ((Number) localDefinition).getValue();
-                scope.put(variableName, new Number(--value));
+                scope.put(variableName, new Number(value - 1));
             }
         }
-        return value;
+        return value - 1;
     }
 
     @Override
@@ -331,9 +358,8 @@ public class CalculatorEvalAST extends ASTVisitor<Double> {
 
     @Override
     public Double visit(PowerExpression node) {
-        Node left = node.getLeft();
-        Node right = node.getRight();
-        return Math.pow(visit(left), visit(right));
+        double[] results = visitBinaryExpression(node);
+        return Math.pow(results[0], results[1]);
     }
 
     @Override
@@ -374,44 +400,38 @@ public class CalculatorEvalAST extends ASTVisitor<Double> {
 
     @Override
     public Double visit(AndExpression node) {
-        Node left = node.getLeft();
-        Node right = node.getRight();
-        return (double) visit(left) != 0.0 && (double) visit(right) != 0.0 ? 1.0 : 0.0;
+        double[] results = visitBinaryExpression(node);
+        return results[0] != 0.0 && results[1] != 0.0 ? 1.0 : 0.0;
     }
 
     @Override
     public Double visit(OrExpression node) {
-        Node left = node.getLeft();
-        Node right = node.getRight();
-        return (double) visit(left) != 0.0 || (double) visit(right) != 0.0 ? 1.0 : 0.0;
+        double[] results = visitBinaryExpression(node);
+        return results[0] != 0.0 || results[1] != 0.0 ? 1.0 : 0.0;
     }
 
     @Override
     public Double visit(MultiplyExpression node) {
-        Node left = node.getLeft();
-        Node right = node.getRight();
-        return visit(left) * visit(right);
+        double[] results = visitBinaryExpression(node);
+        return results[0] * results[1];
     }
 
     @Override
     public Double visit(DivideExpression node) {
-        Node left = node.getLeft();
-        Node right = node.getRight();
-        return visit(left) / visit(right);
+        double[] results = visitBinaryExpression(node);
+        return results[0] / results[1];
     }
 
     @Override
     public Double visit(AddExpression node) {
-        Node left = node.getLeft();
-        Node right = node.getRight();
-        return visit(left) + visit(right);
+        double[] results = visitBinaryExpression(node);
+        return results[0] + results[1];
     }
 
     @Override
     public Double visit(SubtractExpression node) {
-        Node left = node.getLeft();
-        Node right = node.getRight();
-        return visit(left) - visit(right);
+        double[] results = visitBinaryExpression(node);
+        return results[0] - results[1];
     }
 
     @Override
@@ -476,48 +496,51 @@ public class CalculatorEvalAST extends ASTVisitor<Double> {
 
     @Override
     public Double visit(GreaterThanExpression node) {
-        Node left = node.getLeft();
-        Node right = node.getRight();
-        return (double) visit(left) > (double) visit(right) ? 1.0 : 0.0;
+        double[] results = visitBinaryExpression(node);
+        return results[0] > results[1] ? 1.0 : 0.0;
     }
 
     @Override
     public Double visit(GreaterThanOrEqualToExpression node) {
-        Node left = node.getLeft();
-        Node right = node.getRight();
-        return (double) visit(left) >= (double) visit(right) ? 1.0 : 0.0;
+        double[] results = visitBinaryExpression(node);
+        return results[0] >= results[1] ? 1.0 : 0.0;
     }
 
     @Override
     public Double visit(LessThanExpression node) {
-        Node left = node.getLeft();
-        Node right = node.getRight();
-        return (double) visit(left) < (double) visit(right) ? 1.0 : 0.0;
+        double[] results = visitBinaryExpression(node);
+        return results[0] < results[1] ? 1.0 : 0.0;
     }
 
     @Override
     public Double visit(LessThanOrEqualToExpression node) {
-        Node left = node.getLeft();
-        Node right = node.getRight();
-        return (double) visit(left) <= (double) visit(right) ? 1.0 : 0.0;
+        double[] results = visitBinaryExpression(node);
+        return results[0] <= results[1] ? 1.0 : 0.0;
     }
 
     @Override
     public Double visit(EqualToExpression node) {
-        Node left = node.getLeft();
-        Node right = node.getRight();
-        return (double) visit(left) == (double) visit(right) ? 1.0 : 0.0;
+        double[] results = visitBinaryExpression(node);
+        return results[0] == results[1] ? 1.0 : 0.0;
     }
 
     @Override
     public Double visit(NotEqualToExpression node) {
-        Node left = node.getLeft();
-        Node right = node.getRight();
-        return (double) visit(left) != (double) visit(right) ? 1.0 : 0.0;
+        double[] results = visitBinaryExpression(node);
+        return results[0] != results[1] ? 1.0 : 0.0;
     }
 
     @Override
     public Double visit(ErrorNode node) {
         return Double.NaN;
+    }
+
+    public double[] visitBinaryExpression(BinaryExpression node) {
+        Node leftNode = node.getLeft();
+        Node rightNode = node.getRight();
+        Double left = visit(leftNode);
+        Double right = visit(rightNode);
+        double[] results = { (double) left, (double) right };
+        return results;
     }
 }

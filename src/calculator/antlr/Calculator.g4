@@ -25,10 +25,10 @@ varDefExpr
     | VAR DIV EQ expr                   # DivEqual
     | VAR SUBT EQ expr                  # SubtEqual
     | VAR ADD EQ expr                   # AddEqual
-    | ADD ADD VAR                       # PreIncrement
-    | SUBT SUBT VAR                     # PreDecrement
-    | VAR ADD ADD                       # PostIncrement
-    | VAR SUBT SUBT                     # PostDecrement
+    | '++' VAR                          # PreIncrement
+    | '--' VAR                          # PreDecrement
+    | VAR '++'                          # PostIncrement
+    | VAR '--'                          # PostDecrement
     ;
 
 COMMENT : LCOM (.)*? RCOM -> channel(HIDDEN) ;
@@ -56,7 +56,7 @@ parameter           : VAR ;
 functionCall 
     : functionName LPAR (expr (',' expr)*)* RPAR # FuncCall
     ;
-// return : check if scope length > 1
+
 statement
     : ifStatement
     | forLoop
@@ -68,31 +68,31 @@ ifStatement
     ;
 
 ifBranch
-    : ifDef LPAR expr RPAR NL* (
-          LBRAC start* returnExpr? NL* RBRAC
+    : ifDef LPAR expr RPAR NL* 
+        ( LBRAC start* returnExpr? NL* RBRAC
         | start
         | returnExpr
     );
 
 elseBranch
-    : elseDef NL* (
-          LBRAC start* returnExpr? NL* RBRAC
+    : elseDef NL* 
+        ( LBRAC start* returnExpr? NL* RBRAC
         | start
         | returnExpr
     );
+
+forLoop
+    : forDef LPAR varDef SEMI expr SEMI varDefExpr RPAR 
+        ( LBRAC start* RBRAC
+        | start
+        )                               # ForLoopStatement
+    ;
 
 whileLoop
     : whileDef LPAR expr RPAR
         ( LBRAC start* RBRAC
         | start
         )                               # WhileLoopStatement
-    ;
-
-forLoop
-    : forDef LPAR varDef SEMI expr SEMI varDefExpr RPAR (
-          LBRAC start* RBRAC
-        | start
-    )                                   # ForLoopStatement
     ;
 
 returnExpr

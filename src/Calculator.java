@@ -31,7 +31,7 @@ public class Calculator {
             // Create native parse tree
             ParseTree tree = parser.prog();
 
-            System.out.println("Parse Tree:\n" + tree.toStringTree(parser));
+            // System.out.println("Parse Tree:\n" + tree.toStringTree(parser));
 
             // create visitor class to transform parse tree to AST
             CalculatorEvalVisitor toAST = new CalculatorEvalVisitor();
@@ -42,7 +42,7 @@ public class Calculator {
             // visit and evaluate AST
             eval.visit(ast);
 
-            // Implement printAST ? idk
+            // Implement printAST ? idk too much work
 
         } catch (FileNotFoundException e) {
             // Interactive Mode / Interpreter ? nah

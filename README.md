@@ -18,4 +18,36 @@ $ java TestRunner
 
 Please ensure you are in the `./src` directory when running the program and testing.
 
+Below are sample inputs for the syntax of the language:
+
+```
+/* Function */
+define function(x) {
+    ...
+}
+
+
+# If/Else */
+if (condition) {
+    ...
+}
+else if (condition) {
+    ...
+}
+...
+else {
+    ...
+}
+
+/* For Loop */
+for (variableDefinition; condition; variableRedefinition) {
+    ...
+}
+
+/* While Loop */
+while (condition) {
+    ...
+}
+```
+
 Any input files are relative to the `./src` directory.
